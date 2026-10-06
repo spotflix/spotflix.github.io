@@ -1,10 +1,34 @@
-// REEMPLAZA CON LA URL DE TU WEB APP DE GOOGLE APPS SCRIPT
 const API_URL = "https://script.google.com/macros/s/AKfycbw_jjfqWdYmN_YjHwtlbldJyWtdjMCynvQaPtFaop3vNQAU9EjaoEhcJAchmyCrzgLC/exec"; 
 
 let deferredPrompt;
+let playlist = [];
+let currentIndex = -1;
+let isShuffle = false;
+let isRepeat = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Manejo de Instalación de PWA
+  // Manejo menú hamburguesa
+  const menuToggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+  if (menuToggle && navLinks) {
+    menuToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("active");
+    });
+  }
+
+  // Eventos de fin de reproducción para continuar la lista en orden, aleatorio o repetir
+  const audioElem = document.getElementById("main-audio-player");
+  if (audioElem) {
+    audioElem.addEventListener("ended", () => {
+      if (isRepeat) {
+        audioElem.play();
+      } else {
+        audioSiguiente();
+      }
+    });
+  }
+
+  // Instalación PWA
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -17,25 +41,23 @@ document.addEventListener("DOMContentLoaded", () => {
     installBtn.addEventListener('click', () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('PWA instalada');
-          }
-          deferredPrompt = null;
-        });
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
       }
     });
   }
 
-  // Verificar si hay una sesión guardada
   const userEmail = localStorage.getItem("spotflix_user_email");
   if (userEmail) {
     document.getElementById("login-screen").style.display = "none";
-    cargarDatosUsuario(userEmail);
+    cargarDatosUsuarioAsincronico(userEmail);
   }
 });
 
-// Decodificar el token JWT que devuelve Google Sign-In
+function cerrarMenuMovil() {
+  const navLinks = document.getElementById("nav-links");
+  if (navLinks) navLinks.classList.remove("active");
+}
+
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -46,27 +68,21 @@ function parseJwt(token) {
   }
 }
 
-// Callback de Google Identity Services
 function handleCredentialResponse(response) {
   const data = parseJwt(response.credential);
-  if (data && data.email) {
-    iniciarSesion(data.email);
-  }
+  if (data && data.email) iniciarSesion(data.email);
 }
 
 function loginConEmailManual() {
   const emailInput = document.getElementById("email-input").value.trim();
-  if (emailInput) {
-    iniciarSesion(emailInput);
-  } else {
-    alert("Ingresa un correo válido");
-  }
+  if (emailInput) iniciarSesion(emailInput);
+  else alert("Ingresa un correo válido");
 }
 
 function iniciarSesion(email) {
   localStorage.setItem("spotflix_user_email", email);
   document.getElementById("login-screen").style.display = "none";
-  cargarDatosUsuario(email);
+  cargarDatosUsuarioAsincronico(email);
 }
 
 function logout() {
@@ -74,12 +90,12 @@ function logout() {
   location.reload();
 }
 
-// Carga principal de datos desde Apps Script
-function cargarDatosUsuario(email) {
+/* CARGA ASINCRÓNICA PROGRESIVA PARA EVITAR BLOQUEOS Y TIEMPOS DE ESPERA LARGOS */
+function cargarDatosUsuarioAsincronico(email) {
   fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
     .then(res => res.json())
     .then(data => {
-      // 1. Perfil
+      // 1. Renderizar perfil y elementos inmediatos
       if (data.usuario) {
         document.getElementById("user-name").innerText = `Perfil de ${data.usuario.nombre}`;
         document.getElementById("nombreOnTop").innerText = data.usuario.nombre.toUpperCase();
@@ -90,32 +106,29 @@ function cargarDatosUsuario(email) {
         }
       }
 
-      // 2. Películas
-      renderCarrusel('fav-movies', data.cat_peliculas, 'pelicula');
+      // 2. Carga diferida por bloques usando requestAnimationFrame o setTimeout breve para no congelar el hilo principal
+      setTimeout(() => {
+        renderCarrusel('fav-movies', data.cat_peliculas, 'pelicula');
+        renderCarrusel('fav-series', data.cat_series, 'serie');
+        renderCarrusel('fav-animes', data.cat_animes, 'anime');
+      }, 50);
 
-      // 3. Series
-      renderCarrusel('fav-series', data.cat_series, 'serie');
+      setTimeout(() => {
+        if (data.cat_canciones) {
+          playlist = data.cat_canciones.filter(c => c.audio);
+          renderCanciones(playlist);
+        }
+        renderAlbums(data.cat_albums);
+      }, 150);
 
-      renderCarrusel('fav-animes', data.cat_animes, 'anime');
-
-      // 4. Canciones
-      renderCanciones(data.cat_canciones);
-
-      renderBandas(data.cat_bandas, data.cat_canciones);
-
-      // 5. Álbumes
-      renderAlbums(data.cat_albums);
-
-      // 6. Libros
-      renderCarrusel('fav-books', data.cat_libros, 'libro');
-
-      // 7. Personajes
-      renderPersonajes(data.cat_deportes);
+      setTimeout(() => {
+        renderCarrusel('fav-books', data.cat_libros, 'libro');
+        renderPersonajes(data.cat_deportes);
+      }, 250);
     })
-    .catch(err => console.error("Error al cargar datos:", err));
+    .catch(err => console.error("Error al cargar datos asincrónicos:", err));
 }
 
-// Renderizado de carruseles (Películas, Series, Animes, Libros)
 function renderCarrusel(containerId, items, tipo) {
   const container = document.getElementById(containerId);
   if (!container || !items) return;
@@ -128,7 +141,7 @@ function renderCarrusel(containerId, items, tipo) {
       const link = item.link ? `<a href="${item.link}" target="_blank" class="btn-read">Leer</a>` : '';
       return `
         <div class="book-card">
-          <img src="${poster}" alt="${titulo}" />
+          <img src="${poster}" alt="${titulo}" loading="lazy" />
           <h4>${titulo}</h4>
           ${link}
         </div>
@@ -137,7 +150,7 @@ function renderCarrusel(containerId, items, tipo) {
 
     return `
       <div class="card" onclick="reproducirMedia('${item.video || ''}', '${titulo}')">
-        <img src="${poster}" alt="${titulo}" />
+        <img src="${poster}" alt="${titulo}" loading="lazy" />
         <h4>${titulo}</h4>
         <p>${item.genero || item.year || ''}</p>
       </div>
@@ -145,14 +158,13 @@ function renderCarrusel(containerId, items, tipo) {
   }).join('');
 }
 
-// Renderizado de canciones
 function renderCanciones(canciones) {
   const tbody = document.getElementById("songs-list");
   if (!tbody || !canciones) return;
 
-  tbody.innerHTML = canciones.map(c => `
-    <tr>
-      <td class="play-btn-cell" onclick="reproducirAudio('${c.audio || ''}', '${c.cancion || c.nombre}', '${c.artista || ''}')">▶</td>
+  tbody.innerHTML = canciones.map((c, index) => `
+    <tr id="song-row-${index}">
+      <td class="play-btn-cell" onclick="reproducirAudioPorIndice(${index})">▶</td>
       <td>${c.cancion || c.nombre || '-'}</td>
       <td>${c.artista || '-'}</td>
       <td>${c.album || '-'}</td>
@@ -160,82 +172,52 @@ function renderCanciones(canciones) {
   `).join('');
 }
 
-function renderBandas(bandas, canciones) {
-  const container = document.getElementById("panels-container");
-  const section = document.getElementById("bandas");
-  if (!container || !bandas || bandas.length === 0) return;
+function reproducirAudioPorIndice(index) {
+  if (index < 0 || index >= playlist.length) return;
+  currentIndex = index;
+  const c = playlist[currentIndex];
+  
+  // Actualizar estilos de la tabla activa
+  document.querySelectorAll('.songs-table tr').forEach(tr => tr.classList.remove('playing-row'));
+  const activeRow = document.getElementById(`song-row-${currentIndex}`);
+  if (activeRow) activeRow.classList.add('playing-row');
 
-  // Mostrar la sección si tiene bandas
-  if (section) section.style.display = "block";
+  const audio = document.getElementById("main-audio-player");
+  document.getElementById("audio-track-title").innerText = c.cancion || c.nombre;
+  document.getElementById("audio-track-artist").innerText = c.artista || '-';
 
-  // Mapear cada banda a un panel vertical
-  container.innerHTML = bandas.map(b => {
-    // Buscar las canciones pertenecientes a esta banda o coincidencia por IDs
-    const listaCancionesBanda = [
-      { id: b['cancion_1_id'] || b.sng_1, nombre: b.cancion_1 || 'Canción 1' },
-      { id: b['cancion_2_id'] || b.sng_2, nombre: b['cancion_2'] || 'Canción 2' },
-      { id: b['cancion_3_id'] || b.sng_3, nombre: b['cancion_3'] || 'Canción 3' },
-      { id: b['cancion_4_id'] || b.sng_4, nombre: b['cancion_4'] || 'Canción 4' },
-      { id: b['cancion_5_id'] || b.sng_5, nombre: b['cancion_5'] || 'Canción 5' },
-      { id: b['cancion_6_id'] || b.sng_6, nombre: b['cancion_6'] || 'Canción 6' }
-    ].filter(item => item.nombre && item.nombre !== '#N/A');
-
-    const centroHTML = listaCancionesBanda.map((item, idx) => {
-      // Buscar la URL del audio en el catálogo global de canciones si coincide el nombre o id
-      const cancionObj = canciones ? canciones.find(c => (c.id === item.id || c.cancion === item.nombre)) : null;
-      const audioUrl = cancionObj ? cancionObj.audio : '';
-
-      return `
-        <div class="box box${idx + 1}" 
-             onclick="event.stopPropagation(); reproducirAudio('${audioUrl}', '${item.nombre}', '${b.nombre}')">
-          ${item.nombre}
-        </div>
-      `;
-    }).join('');
-
-    const bgPhoto = b.photo || b.poster || 'https://via.placeholder.com/600x800';
-
-    return `
-      <div class="panel" style="background-image: url('${bgPhoto}');">
-        <p>${b.nombre}</p>
-        <div class="centro">
-          ${centroHTML}
-        </div>
-        <p>${b.Pais || b.pais || ''}</p>
-      </div>
-    `;
-  }).join('');
-
-  // Activar la interactividad de flex grow al hacer click
-  initPanelsEvents();
+  audio.src = c.audio;
+  audio.play();
 }
 
-// Eventos de apertura/cierre de los paneles
-function initPanelsEvents() {
-  const panels = document.querySelectorAll('.panel');
-
-  function toggleOpen() {
-    // Si ya está abierto, se cierra; si no, cierra los demás y abre este
-    const isOpen = this.classList.contains('open');
-    panels.forEach(panel => panel.classList.remove('open'));
-    if (!isOpen) {
-      this.classList.add('open');
-    }
+function audioSiguiente() {
+  if (playlist.length === 0) return;
+  if (isShuffle) {
+    currentIndex = Math.floor(Math.random() * playlist.length);
+  } else {
+    currentIndex = (currentIndex + 1) % playlist.length;
   }
-
-  function toggleActive(e) {
-    if (e.propertyName.includes('flex')) {
-      this.classList.toggle('open-active', this.classList.contains('open'));
-    }
-  }
-
-  panels.forEach(panel => {
-    panel.addEventListener('click', toggleOpen);
-    panel.addEventListener('transitionend', toggleActive);
-  });
+  reproducirAudioPorIndice(currentIndex);
 }
 
-// Renderizado de Álbumes
+function audioAnterior() {
+  if (playlist.length === 0) return;
+  currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+  reproducirAudioPorIndice(currentIndex);
+}
+
+function toggleShuffle() {
+  isShuffle = !isShuffle;
+  const btn = document.getElementById("btn-shuffle");
+  if (btn) btn.classList.toggle("active-control", isShuffle);
+}
+
+function toggleRepeat() {
+  isRepeat = !isRepeat;
+  const btn = document.getElementById("btn-repeat");
+  if (btn) btn.classList.toggle("active-control", isRepeat);
+}
+
 function renderAlbums(albums) {
   const container = document.getElementById("albums-grid");
   if (!container || !albums) return;
@@ -243,8 +225,8 @@ function renderAlbums(albums) {
   container.innerHTML = albums.map((alb, i) => {
     const isBig = i < 4 ? 'item-big' : '';
     return `
-      <div class="album-card ${isBig}" onclick="reproducirAudio('${alb.audio || ''}', '${alb.nombre}', '${alb.artista}')">
-        <img src="${alb.poster || 'https://via.placeholder.com/180'}" alt="${alb.nombre}" />
+      <div class="album-card ${isBig}" onclick="reproducirAudioDirecto('${alb.audio || ''}', '${alb.nombre}', '${alb.artista}')">
+        <img src="${alb.poster || 'https://via.placeholder.com/180'}" alt="${alb.nombre}" loading="lazy" />
         <div class="album-tag">
           <span class="album-title">${alb.nombre}</span>
           <span class="album-artist">${alb.artista}</span>
@@ -255,7 +237,15 @@ function renderAlbums(albums) {
   }).join('');
 }
 
-// Renderizado de Personajes
+function reproducirAudioDirecto(url, titulo, artista) {
+  if (!url) return;
+  const audio = document.getElementById("main-audio-player");
+  document.getElementById("audio-track-title").innerText = titulo;
+  document.getElementById("audio-track-artist").innerText = artista || '-';
+  audio.src = url;
+  audio.play();
+}
+
 function renderPersonajes(personajes) {
   const stage = document.getElementById("sports-stage");
   if (!stage || !personajes) return;
@@ -268,7 +258,7 @@ function renderPersonajes(personajes) {
         <img src="${img}" 
              alt="${p.Personaje || p.nombre}" 
              class="athlete-cutout" 
-             style="left: ${leftPos}%; bottom: 10%; height: 220px;"
+             style="left: ${leftPos}%; bottom: 10%;"
              onmouseenter="mostrarTooltip('${p.Personaje || p.nombre}', '${p.deporte || p.Pais || ''}')"
              onmouseleave="ocultarTooltip()" />
       `;
@@ -300,20 +290,10 @@ function reproducirMedia(url, titulo) {
   if (titleElem) titleElem.innerText = titulo;
 }
 
-function reproducirAudio(url, titulo, artista) {
-  if (!url) return;
-  const audio = document.getElementById("main-audio-player");
-  document.getElementById("audio-track-title").innerText = titulo;
-  document.getElementById("audio-track-artist").innerText = artista || '-';
-
-  audio.src = url;
-  audio.play();
-}
-
 function moverCarrusel(id, direccion) {
   const elem = document.getElementById(id);
   if (elem) {
-    elem.scrollBy({ left: direccion * 300, behavior: 'smooth' });
+    elem.scrollBy({ left: direccion * 250, behavior: 'smooth' });
   }
 }
 
