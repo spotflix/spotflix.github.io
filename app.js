@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbw_jjfqWdYmN_YjHwtlbldJyWtdjMCynvQaPtFaop3vNQAU9EjaoEhcJAchmyCrzgLC/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycby-OLncoEAoMC8IvOAjriq_Il74ChyLJ0Hl6MXXUKrOfL1hw_q59aVbRf0b88d-B0V9/exec"; 
 
 let deferredPrompt;
 let playlist = [];
