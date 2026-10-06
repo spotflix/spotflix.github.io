@@ -18,7 +18,7 @@
 </head>
 <body>
 
-    <!-- MODAL DE LOGIN (SE MUESTRA ANTES DE ENTRAR) -->
+    <!-- MODAL DE LOGIN -->
     <div id="login-screen" class="login-overlay">
       <div class="login-box">
         <h1 class="brand-title">SPOTFLIX</h1>
@@ -44,21 +44,27 @@
       <button id="install-pwa-btn" class="btn-install">Instalar</button>
     </div>
 
-    <!-- NAVBAR FIJA SUPERIOR -->
+    <!-- NAVBAR FIJA SUPERIOR CON HAMBURGUESA -->
     <nav class="navbar">
       <div class="nav-container">
         <div class="brand-logo-container">
           <img id="user-avatar" class="user-avatar" src="" alt="Foto Perfil" style="display: none;">
           <span id="nombreOnTop" class="brand-logo">SPOTFLIX</span>
         </div>
-        <ul class="nav-links">
-          <li><a href="#player-section">Player</a></li>
-          <li><a href="#peliculas-section">Films</a></li>
-          <li><a href="#series-section">Series</a></li>
-          <li><a href="#musica-section">Música</a></li>
-          <li><a href="#albums-section">Álbumes</a></li>
-          <li><a href="#libros-section">Literatura</a></li>
-          <li><a href="#deportes-section">Personajes</a></li>
+        
+        <!-- Botón menú hamburguesa móvil -->
+        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú">
+          ☰
+        </button>
+
+        <ul class="nav-links" id="nav-links">
+          <li><a href="#player-section" onclick="cerrarMenuMovil()">Player</a></li>
+          <li><a href="#peliculas-section" onclick="cerrarMenuMovil()">Films</a></li>
+          <li><a href="#series-section" onclick="cerrarMenuMovil()">Series</a></li>
+          <li><a href="#musica-section" onclick="cerrarMenuMovil()">Música</a></li>
+          <li><a href="#albums-section" onclick="cerrarMenuMovil()">Álbumes</a></li>
+          <li><a href="#libros-section" onclick="cerrarMenuMovil()">Literatura</a></li>
+          <li><a href="#deportes-section" onclick="cerrarMenuMovil()">Personajes</a></li>
           <li><button onclick="logout()" class="logout-btn">Salir</button></li>
         </ul>
       </div>
@@ -104,8 +110,8 @@
         </div>
       </section>
 
-         <!-- ANIMES -->
-      <section id="series-section" class="section-container">
+      <!-- ANIMES -->
+      <section class="section-container">
         <h3 class="section-title">Animaciones Favoritas</h3>
         <div class="carousel-container">
           <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-animes', -1)" aria-label="Anterior">&#10094;</button>
@@ -135,14 +141,14 @@
         </div>
       </section>  
 
-      <section id="bandas" class="bandas-section">
+      <section id="bandas" class="bandas-section" style="display:none;">
         <div id="panels-container" class="panels"></div>
       </section>
 
       <!-- ÁLBUMES -->
       <section id="albums-section" class="albums-container">
         <div class="section-header">
-          <h2 class="section-title">Álbumes Destacados</h2>
+          <h2 class="section-title" style="padding-left: 15px;">Álbumes Destacados</h2>
         </div>
         <div id="albums-grid" class="albums-grid"></div>
       </section>
@@ -167,7 +173,7 @@
 
     </main>
 
-    <!-- REPRODUCTOR DE AUDIO FIJO -->
+    <!-- REPRODUCTOR DE AUDIO FIJO CON CONTROLES AVANZADOS -->
     <div class="audio-player-bar">
       <div class="now-playing-info">
         <span class="now-playing-label">Now Playing</span>
@@ -176,6 +182,12 @@
       </div>
 
       <div class="audio-controls">
+        <div class="player-buttons-row">
+          <button onclick="audioAnterior()" class="ctrl-btn" title="Anterior">⏮</button>
+          <button id="btn-shuffle" onclick="toggleShuffle()" class="ctrl-btn" title="Aleatorio">🔀</button>
+          <button id="btn-repeat" onclick="toggleRepeat()" class="ctrl-btn" title="Repetir">🔁</button>
+          <button onclick="audioSiguiente()" class="ctrl-btn" title="Siguiente">⏭</button>
+        </div>
         <audio id="main-audio-player" controls src=""></audio>
       </div>
     </div>
