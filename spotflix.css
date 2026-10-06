@@ -602,3 +602,25 @@ body {
   object-fit: cover;   /* Evita que la foto se deforme o estire */
   display: inline-block;
 }
+
+.player-btn {
+  background: transparent;
+  border: none;
+  color: #b3b3b3; /* Color gris suave típico */
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.player-btn:hover {
+  color: #ffffff; /* Se aclaran al pasar el mouse */
+  transform: scale(1.05);
+}
+
+/* Clase para cuando el modo aleatorio o repetir esté activo */
+.player-btn.active {
+  color: #1db954; /* Verde brillante característico */
+}
