@@ -138,6 +138,18 @@ function renderCarrusel(containerId, items, tipo) {
     const poster = item.poster || item.photo || "https://via.placeholder.com/160x220";
     const titulo = item.nombre || item.Personaje || item.cancion || "";
 
+    if (tipo === 'serie') {
+      // Codificamos y escapamos los episodios para pasarlos de forma segura al evento
+      const episodiosData = JSON.stringify(item.episodios || []).replace(/"/g, '&quot;');
+      return `
+        <div class="card" onclick="abrirModalEpisodios('${titulo}', '${episodiosData}')">
+          <img src="${poster}" alt="${titulo}" loading="lazy" />
+          <h4>${titulo}</h4>
+          <p>${item.genero || item.year || ''}</p>
+        </div>
+      `;
+    }
+
     if (tipo === 'libro') {
       const link = item.link ? `<a href="${item.link}" target="_blank" class="btn-read">Leer</a>` : '';
       return `
@@ -302,4 +314,55 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(reg => console.log('Service Worker registrado:', reg))
     .catch(err => console.error('Error en Service Worker:', err));
+}
+
+// ==========================================
+// LÓGICA PARA EL MODAL DE EPISODIOS DE SERIES
+// ==========================================
+
+function abrirModalEpisodios(tituloSerie, episodiosJson) {
+  const modal = document.getElementById("episode-modal");
+  const titleElem = document.getElementById("modal-serie-title");
+  const listElem = document.getElementById("episodes-list");
+  const iframe = document.getElementById("modal-iframe");
+  
+  if (titleElem) titleElem.innerText = tituloSerie;
+  if (iframe) iframe.src = ""; // Limpiar reproductor previo
+  
+  try {
+    // Si viene como texto plano desde el Google Sheet, lo parseamos a objeto
+    const episodios = typeof episodiosJson === 'string' ? JSON.parse(episodiosJson) : episodiosJson;
+    
+    if (listElem && Array.isArray(episodios)) {
+      listElem.innerHTML = episodios.map(ep => `
+        <button class="btn-episodio" onclick="cargarVideoIframe('${ep.url}')">
+          Ep ${ep.ep}: ${ep.title}
+        </button>
+      `).join('');
+    }
+  } catch (e) {
+    console.error("Error al parsear episodios:", e);
+    if (listElem) listElem.innerHTML = "<p style='color: #b3b3b3;'>No hay episodios disponibles o el formato es incorrecto.</p>";
+  }
+  
+  if (modal) modal.style.display = "block";
+}
+
+function cargarVideoIframe(url) {
+  const iframe = document.getElementById("modal-iframe");
+  if (iframe && url) {
+    // Convertir enlaces de Dropbox si es necesario (asegurar que lleven raw=1 o dl=1)
+    let urlProcesada = url;
+    if (url.includes("dropbox.com") && url.includes("dl=0")) {
+      urlProcesada = url.replace("dl=0", "raw=1");
+    }
+    iframe.src = urlProcesada;
+  }
+}
+
+function cerrarModalEpisodios() {
+  const modal = document.getElementById("episode-modal");
+  const iframe = document.getElementById("modal-iframe");
+  if (modal) modal.style.display = "none";
+  if (iframe) iframe.src = ""; // Detiene la reproducción al cerrar
 }
