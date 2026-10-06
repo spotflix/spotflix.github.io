@@ -594,3 +594,11 @@ body {
   padding: 8px 12px;
   font-size: 0.85rem;
 }
+
+#user-avatar {
+  width: 40px;         /* Ajusta el ancho deseado (ej. 40px o 45px) */
+  height: 40px;        /* Debe medir lo mismo que el ancho para que sea un círculo perfecto */
+  border-radius: 50%;  /* Vuelve la imagen circular tipo Spotify */
+  object-fit: cover;   /* Evita que la foto se deforme o estire */
+  display: inline-block;
+}
