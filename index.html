@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotflix</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1db954">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,140 +14,172 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Identity Services (OAuth) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="spotflix.css">   
 </head>
 <body>
-    <div id="pwa-install-banner" class="install-banner" style="display:;">
-      <span> Instala la App en tu inicio</span>
+
+    <!-- MODAL DE LOGIN (SE MUESTRA ANTES DE ENTRAR) -->
+    <div id="login-screen" class="login-overlay">
+      <div class="login-box">
+        <h1 class="brand-title">SPOTFLIX</h1>
+        <p>Inicia sesión para cargar tu biblioteca y favoritos personal.</p>
+        <div id="g_id_onload"
+             data-client_id="620173554371-sbp765egj9fet1bfq9ejir93ta3vj4q0.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-size="large"></div>
+        
+        <div class="guest-login-option">
+          <p>O ingresa directamente con tu correo:</p>
+          <input type="email" id="email-input" placeholder="tu_correo@gmail.com" class="email-field" />
+          <button onclick="loginConEmailManual()" class="btn-email-login">Entrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER PWA -->
+    <div id="pwa-install-banner" class="install-banner" style="display:none;">
+      <span>Instala la App en tu inicio</span>
       <button id="install-pwa-btn" class="btn-install">Instalar</button>
     </div>
-  <!-- NAVBAR FIJA SUPERIOR -->
+
+    <!-- NAVBAR FIJA SUPERIOR -->
     <nav class="navbar">
       <div class="nav-container">
         <div class="brand-logo-container">
           <img id="user-avatar" class="user-avatar" src="" alt="Foto Perfil" style="display: none;">
-          <span id="nombreOnTop" class="brand-logo">IVANGUILLERMO</span>
+          <span id="nombreOnTop" class="brand-logo">SPOTFLIX</span>
         </div>
         <ul class="nav-links">
           <li><a href="#player-section">Player</a></li>
           <li><a href="#peliculas-section">Films</a></li>
           <li><a href="#series-section">Series</a></li>
-          <li><a href="#musica-section">Musica</a></li>
-          <li><a href="#bandas">Bandas</a></li>
+          <li><a href="#musica-section">Música</a></li>
+          <li><a href="#albums-section">Álbumes</a></li>
           <li><a href="#libros-section">Literatura</a></li>
+          <li><a href="#deportes-section">Personajes</a></li>
+          <li><button onclick="logout()" class="logout-btn">Salir</button></li>
         </ul>
       </div>
-    </nav
+    </nav>
       
     <header class="user-header">
       <h2 id="user-name">Perfil de Usuario</h2>
-  </header>
+    </header>
   
-   <section id="player-section" class="player-section">
-    <div class="video-wrapper">
-      <video id="main-video-player" controls poster="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=1200">
-        <source id="video-source" src="" type="video/mp4">
-        Tu navegador no soporta el reproductor de video.
-      </video>
+    <section id="player-section" class="player-section">
+      <div class="video-wrapper">
+        <video id="main-video-player" controls poster="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=1200">
+          <source id="video-source" src="" type="video/mp4">
+          Tu navegador no soporta el reproductor de video.
+        </video>
+      </div>
+      
+      <div class="video-details">
+        <h2 id="playing-title">Selecciona un título para reproducir</h2>
+        <p id="playing-info" class="playing-info">Explora las listas a continuación para ver tráileres y episodios.</p>
+      </div>
+    </section>
+
+    <main class="main-content">
+      
+      <!-- PELÍCULAS -->
+      <section id="peliculas-section" class="section-container">
+        <h3 class="section-title">Películas Favoritas</h3>
+        <div class="carousel-container">
+          <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-movies', -1)" aria-label="Anterior">&#10094;</button>
+          <div id="fav-movies" class="carousel-track"></div>
+          <button class="nav-btn next-btn" onclick="moverCarrusel('fav-movies', 1)" aria-label="Siguiente">&#10095;</button>
+        </div>
+      </section>
+
+      <!-- SERIES -->
+      <section id="series-section" class="section-container">
+        <h3 class="section-title">Series Favoritas</h3>
+        <div class="carousel-container">
+          <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-series', -1)" aria-label="Anterior">&#10094;</button>
+          <div id="fav-series" class="carousel-track"></div>
+          <button class="nav-btn next-btn" onclick="moverCarrusel('fav-series', 1)" aria-label="Siguiente">&#10095;</button>
+        </div>
+      </section>
+
+         <!-- ANIMES -->
+      <section id="series-section" class="section-container">
+        <h3 class="section-title">Animaciones Favoritas</h3>
+        <div class="carousel-container">
+          <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-animes', -1)" aria-label="Anterior">&#10094;</button>
+          <div id="fav-animes" class="carousel-track"></div>
+          <button class="nav-btn next-btn" onclick="moverCarrusel('fav-animes', 1)" aria-label="Siguiente">&#10095;</button>
+        </div>
+      </section>
+
+      <!-- MÚSICA -->
+      <div id="musica-section" class="songs-banner">
+        <h1>Mis Canciones</h1>
+      </div>
+      
+      <section class="section-container">
+        <div class="table-scroll-container">
+          <table class="songs-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Play</th>
+                <th>Nombre</th>
+                <th>Artista</th>
+                <th>Álbum</th>
+              </tr>
+            </thead>
+            <tbody id="songs-list"></tbody>
+          </table>
+        </div>
+      </section>  
+
+      <section id="bandas" class="bandas-section">
+        <div id="panels-container" class="panels"></div>
+      </section>
+
+      <!-- ÁLBUMES -->
+      <section id="albums-section" class="albums-container">
+        <div class="section-header">
+          <h2 class="section-title">Álbumes Destacados</h2>
+        </div>
+        <div id="albums-grid" class="albums-grid"></div>
+      </section>
+     
+      <!-- LITERATURA -->
+      <section id="libros-section" class="section-container">
+        <h3 class="section-title">Libros Favs</h3>
+        <div class="carousel-container">
+          <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-books', -1)" aria-label="Anterior">&#10094;</button>
+          <div id="fav-books" class="carousel-track"></div>
+          <button class="nav-btn next-btn" onclick="moverCarrusel('fav-books', 1)" aria-label="Siguiente">&#10095;</button>
+        </div>
+      </section>
+
+      <!-- PERSONAJES -->
+      <section id="deportes-section" class="deportes-container" style="display:block;">
+        <h3 class="section-title" style="padding:15px;">Personajes Destacados</h3>
+        <div id="sports-stage" class="sports-stage">
+          <div id="deportes-tooltip" class="sports-tooltip"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- REPRODUCTOR DE AUDIO FIJO -->
+    <div class="audio-player-bar">
+      <div class="now-playing-info">
+        <span class="now-playing-label">Now Playing</span>
+        <h4 id="audio-track-title">Sin reproducción</h4>
+        <p id="audio-track-artist">-</p>
+      </div>
+
+      <div class="audio-controls">
+        <audio id="main-audio-player" controls src=""></audio>
+      </div>
     </div>
-    
-    <div class="video-details">
-      <h2 id="playing-title">Selecciona un título para reproducir</h2>
-      <p id="playing-info" class="playing-info">Explora las listas a continuación para ver tráileres y episodios.</p>
-    </div>
-  </section>
 
-  <main class="main-content">
-    
-    <section id="peliculas-section" class="section-container">
-      <h3 class="section-title">Películas Favoritas</h3>
-      <div class="carousel-container">
-        <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-movies', -1)" aria-label="Anterior">&#10094;</button>
-        <div id="fav-movies" class="carousel-track"></div>
-        <button class="nav-btn next-btn" onclick="moverCarrusel('fav-movies', 1)" aria-label="Siguiente">&#10095;</button>
-      </div>
-    </section>
-
-    <section id="series-section" class="section-container">
-      <h3 class="section-title">Series Favoritas</h3>
-      <div class="carousel-container">
-        <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-series', -1)" aria-label="Anterior">&#10094;</button>
-        <div id="fav-series" class="carousel-track"></div>
-        <button class="nav-btn next-btn" onclick="moverCarrusel('fav-series', 1)" aria-label="Siguiente">&#10095;</button>
-      </div>
-    </section>
-
-    <!-- MÚSICA -->
-    <div id="musica-section" class="songs-banner">
-      <h1>Mis Canciones</h1>
-    </div>
-    
-    <section class="section-container">
-      <div class="table-scroll-container">
-        <table class="songs-table">
-          <thead>
-            <tr>
-              <th style="width: 50px;">Play</th>
-              <th>Nombre</th>
-              <th>Artista</th>
-              <th>Álbum</th>
-            </tr>
-          </thead>
-          <tbody id="songs-list"></tbody>
-        </table>
-      </div>
-    </section>  
-
-    <section id="bandas" class="bandas-section">
-      <div id="panels-container" class="panels">
-      </div>
-    </section>
-
-    <!-- SECCIÓN DE ÁLBUMES FAVORITOS -->
-    <section id="albums-section" class="albums-container">
-      <!-- Encabezado opcional de la sección -->
-      <div class="section-header">
-        <h2 class="section-title">Álbumes Destacados</h2>
-      </div>
-    
-      <!-- Contenedor en cuadrícula donde JavaScript (app.js) inyectará los 15 álbumes -->
-      <div id="albums-grid" class="albums-grid">
-        <!-- Los 4 álbumes principales (grandes) y los 11 restantes (pequeños) se renderizan aquí dinámicamente -->
-      </div>
-    </section>
-   
-    <section id="libros-section" class="section-container">
-      <h3 class="section-title">Libros Favs</h3>
-      <div class="carousel-container">
-        <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-books', -1)" aria-label="Anterior">&#10094;</button>
-        <div id="fav-books" class="carousel-track"></div>
-        <button class="nav-btn next-btn" onclick="moverCarrusel('fav-books', 1)" aria-label="Siguiente">&#10095;</button>
-      </div>
-    </section>
-
-    <!-- SECCIÓN DEPORTES -->
-    <section id="deportes-section" class="deportes-container">
-      <div id="sports-stage" class="sports-stage">
-        <!-- El fondo de Ballack y los deportistas recortados se cargan dinámicamente -->
-        <div id="deportes-tooltip" class="sports-tooltip"></div>
-      </div>
-    </section>
-
-  </main>
-
-  <div class="audio-player-bar">
-    <div class="now-playing-info">
-      <span class="now-playing-label">Now Playing</span>
-      <h4 id="audio-track-title">Sin reproducción</h4>
-      <p id="audio-track-artist">-</p>
-    </div>
-
-    <div class="audio-controls">
-      <audio id="main-audio-player" controls src=""></audio>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

@@ -1,474 +1,324 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzWHBQ1M6233yznvYwzTavI-rW21ceUswPtyrbF1EA1wlpU9VQUAyHE8bTXZ0rRANvm/exec";
-const DEFAULT_VIDEO = "https://www.w3schools.com/html/mov_bbb.mp4";
-async function cargarSpotiflix() {
+// REEMPLAZA CON LA URL DE TU WEB APP DE GOOGLE APPS SCRIPT
+const API_URL = "https://script.google.com/macros/s/AKfycbw_jjfqWdYmN_YjHwtlbldJyWtdjMCynvQaPtFaop3vNQAU9EjaoEhcJAchmyCrzgLC/exec"; 
+
+let deferredPrompt;
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Manejo de Instalación de PWA
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) banner.style.display = 'flex';
+  });
+
+  const installBtn = document.getElementById('install-pwa-btn');
+  if (installBtn) {
+    installBtn.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('PWA instalada');
+          }
+          deferredPrompt = null;
+        });
+      }
+    });
+  }
+
+  // Verificar si hay una sesión guardada
+  const userEmail = localStorage.getItem("spotflix_user_email");
+  if (userEmail) {
+    document.getElementById("login-screen").style.display = "none";
+    cargarDatosUsuario(userEmail);
+  }
+});
+
+// Decodificar el token JWT que devuelve Google Sign-In
+function parseJwt(token) {
   try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-
-    const usuarioActual = (data.usuarios && data.usuarios.length > 0)
-      ? (data.usuarios.find(u => u.correo && u.correo.trim().toLowerCase() === "ivanglopezp@gmail.com") || data.usuarios[0])
-      : null;
-
-    if (usuarioActual) {
-      // Cargar foto de perfil en la navbar
-      const avatarImg = document.getElementById("user-avatar");
-      if (usuarioActual.foto_perfil && usuarioActual.foto_perfil.trim() !== "") {
-        avatarImg.src = usuarioActual.foto_perfil;
-        avatarImg.style.display = "block";
-      }
-
-      if (usuarioActual.nombre) {
-        document.getElementById("user-name").textContent = `Perfil de ${usuarioActual.nombre}`;
-        document.getElementById("nombreOnTop").innerHTML = `${usuarioActual.nombre}`;
-      }
-    }
-
-    // 1. Películas
-    if (usuarioActual && usuarioActual.peliculas_fav && data.cat_peliculas) {
-      const peliIds = usuarioActual.peliculas_fav.toString().split(",");
-      const pelisFavoritas = peliIds.map(id => {
-        return data.cat_peliculas.find(p => p.id && p.id.toString().trim() === id.trim());
-      }).filter(Boolean);
-      renderCards("fav-movies", pelisFavoritas, false);
-      if (pelisFavoritas.length > 0) reproducirElemento(pelisFavoritas[0], false);
-    }
-
-    // 2. Series
-    if (usuarioActual && usuarioActual.series_fav && data.cat_series) {
-      const serieIds = usuarioActual.series_fav.toString().split(",");
-      const seriesFavoritas = serieIds.map(id => {
-        return data.cat_series.find(s => s.id && s.id.toString().trim() === id.trim());
-      }).filter(Boolean);
-      renderCards("fav-series", seriesFavoritas, true);
-    }
-
-    // 3. Canciones
-    if (usuarioActual && usuarioActual.canciones_fav && data.cat_canciones) {
-      const cancionIds = usuarioActual.canciones_fav.toString().split(",");
-      const cancionesFavoritas = cancionIds.map(id => {
-        return data.cat_canciones.find(c => c.id && c.id.toString().trim() === id.trim());
-      }).filter(Boolean);
-      renderSongs(cancionesFavoritas);
-    } else if (data.cat_canciones) {
-      // Fallback: mostrar todo el catálogo de canciones si no hay filtro de favoritas
-      renderSongs(data.cat_canciones);
-    }
-    // 3. Libros
-    if (usuarioActual && usuarioActual.libros_fav && data.cat_libros) {
-      const libroIds = usuarioActual.libros_fav.toString().split(",");
-      const librosFavoritos = libroIds.map(id => {
-        return data.cat_libros.find(l => l.id && l.id.toString().trim() === id.trim());
-      }).filter(Boolean);    
-      renderBooks("fav-books", librosFavoritos);
-    } else if (data.cat_libros) {
-      renderBooks("fav-books", data.cat_libros);
-    }
-    // 4. Bandas      
-    if (usuarioActual && usuarioActual.bandas_fav && data.cat_bandas) {
-      const bandasIds = usuarioActual.bandas_fav.toString().split(",").map(id => id.trim());
-      const bandasFavoritas = bandasIds.map(id => {
-        return data.cat_bandas.find(b => b.id && b.id.toString().trim() === id);
-      }).filter(Boolean);
-      renderBandas(bandasFavoritas, data.cat_canciones || []);
-    } else if (data.cat_bandas) {
-      renderBandas(data.cat_bandas, data.cat_canciones || []);
-    }
-    
-    // 5. Deportes
-   
-    if (usuarioActual && usuarioActual.personajes_fav && data.cat_deportes) {
-      const personajesIds = usuarioActual.personajes_fav.toString().split(",");
-      const personajesFavoritos = personajesIds.map(id => {
-        return data.cat_deportes.find(l => l.id && l.id.toString().trim() === id.trim());
-      }).filter(Boolean);    
-      renderDeportes("deportes-tooltip", personajesFavoritos);
-    } else if (data.cat_deportes) {
-      renderDeportes("deportes-tooltip", data.cat_deportes);
-    }
-    
-    // 6. Albums
-    if (usuarioActual && usuarioActual.albums && data.cat_albums) {
-      // Obtener los 15 IDs separados por comas
-      const idsAlbumsFav = usuarioActual.albums.toString().split(",").map(id => id.trim());
-    
-      // Filtrar los álbumes respetando el orden exacto especificado en la celda del usuario
-      const albumsFavoritos = idsAlbumsFav.map(id => {
-        return data.cat_albums.find(a => a.id && a.id.toString().trim() === id);
-      }).filter(Boolean).slice(0, 15); // Garantiza un máximo de 15
-    
-      renderAlbums(albumsFavoritos);
-    } else if (data.cat_albums) {
-      renderAlbums(data.cat_albums.slice(0, 15));
-    }
-
-  } catch (error) {
-    console.error("Error al cargar los datos:", error);
-    document.getElementById("user-name").textContent = "";
-  }
-}
-const nombreOnTop = document.getElementById("nombreOnTop");
-
-// Lógica de reproducción de video
-function reproducirElemento(item, autoPlay = true) {
-  const videoPlayer = document.getElementById("main-video-player");
-  const playingTitle = document.getElementById("playing-title");
-  const playingInfo = document.getElementById("playing-info");
-
-  const videoSrc = (item.video && item.video.trim() !== "") ? item.video : DEFAULT_VIDEO;
-
-  videoPlayer.poster = item.poster || "";
-  videoPlayer.src = videoSrc;
-  playingTitle.textContent = item.nombre || "Sin título";
-
-  const subtitulo = item.temporada 
-    ? `Serie • ${item.temporada} Temporadas • ${item.genero || ""}`
-    : `Película • ${item.genero || ""} • ${item.year || ""}`;
-
-  playingInfo.textContent = `${subtitulo} ${item.resumen ? "— " + item.resumen : ""}`;
-
-  if (autoPlay) videoPlayer.play().catch(() => {});
-}
-
-// Lógica para reproducir canción en la barra inferior
-function reproducirCancion(cancion) {
-  const audioPlayer = document.getElementById("main-audio-player");
-  const titleElem = document.getElementById("audio-track-title");
-  const artistElem = document.getElementById("audio-track-artist");
-
-  titleElem.textContent = cancion.cancion || cancion.nombre || "Sin título";
-  artistElem.textContent = cancion.artista || "Artista desconocido";
-
-  if (cancion.audio) {
-    audioPlayer.src = cancion.audio;
-    audioPlayer.play().catch(err => console.log("Error al reproducir audio:", err));
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+  } catch (e) {
+    return null;
   }
 }
 
-// Renderizado de la tabla de canciones
-function renderSongs(canciones) {
-  const tbody = document.getElementById("songs-list");
-  tbody.innerHTML = "";
-
-  if (!canciones || canciones.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px;">No hay canciones disponibles.</td></tr>`;
-    return;
+// Callback de Google Identity Services
+function handleCredentialResponse(response) {
+  const data = parseJwt(response.credential);
+  if (data && data.email) {
+    iniciarSesion(data.email);
   }
-
-  canciones.forEach(cancion => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td class="play-btn-cell">▶</td>
-      <td><a href="#" class="song-link">${cancion.cancion || cancion.nombre}</a></td>
-      <td>${cancion.artista || "-"}</td>
-      <td>${cancion.album || "-"}</td>
-    `;
-
-    // Asignar clic tanto al botón play como al nombre de la canción
-    tr.querySelector(".play-btn-cell").addEventListener("click", () => reproducirCancion(cancion));
-    tr.querySelector(".song-link").addEventListener("click", (e) => {
-      e.preventDefault();
-      reproducirCancion(cancion);
-    });
-
-    tbody.appendChild(tr);
-  });
 }
 
-function renderBooks(containerId, libros) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-
-  if (!libros || libros.length === 0) {
-    container.innerHTML = `<p style="color: #888;">No hay libros disponibles.</p>`;
-    return;
+function loginConEmailManual() {
+  const emailInput = document.getElementById("email-input").value.trim();
+  if (emailInput) {
+    iniciarSesion(emailInput);
+  } else {
+    alert("Ingresa un correo válido");
   }
-
-  libros.forEach(libro => {
-    const card = document.createElement("article");
-    card.className = "book-card";
-
-    const linkPdf = libro.link || libro.pdf || "#";
-
-    card.innerHTML = `
-      <img src="${libro.poster}" alt="${libro.nombre}" loading="lazy">
-      <a href="${linkPdf}" target="_blank" rel="noopener noreferrer" class="btn-read">Leer</a>
-    `;
-
-    container.appendChild(card);
-  });
 }
 
-// Renderizado de carruseles
-function renderCards(containerId, items, esSerie = false) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-
-  if (!items || items.length === 0) {
-    container.innerHTML = `<p style="color: #888;">No hay elementos seleccionados.</p>`;
-    return;
-  }
-
-  items.forEach(item => {
-    const subtitulo = esSerie 
-      ? `${item.temporada} Temp. • ${item.genero}`
-      : `${item.genero} • ${item.year}`;
-
-    const card = document.createElement("article");
-    card.className = "card";
-    card.addEventListener("click", () => reproducirElemento(item, true));
-
-    card.innerHTML = `
-      <img src="${item.poster}" alt="${item.nombre}" loading="lazy">
-      <h4>${item.nombre}</h4>
-      <p>${subtitulo}</p>
-    `;
-
-    container.appendChild(card);
-  });
+function iniciarSesion(email) {
+  localStorage.setItem("spotflix_user_email", email);
+  document.getElementById("login-screen").style.display = "none";
+  cargarDatosUsuario(email);
 }
 
-function moverCarrusel(containerId, direccion) {
-  const track = document.getElementById(containerId);
-  if (!track) return;
-  track.scrollBy({ left: direccion * 175 * 3, behavior: 'smooth' });
+function logout() {
+  localStorage.removeItem("spotflix_user_email");
+  location.reload();
 }
 
-// Función aux para convertir cualquier link de Google Drive a Stream directo de audio
-function fixDriveUrl(url) {
-  if (!url) return "";
-  const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (match && match[1]) {
-    return `https://lh3.googleusercontent.com/d/${match[1]}`;
-  }
-  return url;
-}
-
-function renderBandas(bandas, catálogoCanciones) {
-  const container = document.getElementById("panels-container");
-  if (!container) return;
-
-  container.innerHTML = "";
-  const cincoBandas = bandas.slice(0, 5);
-
-  cincoBandas.forEach((banda, index) => {
-    const panel = document.createElement("div");
-    panel.className = `panel panel${index + 1}`;
-
-    if (banda.photo && banda.photo.trim() !== "") {
-      panel.style.backgroundImage = `url('${banda.photo.trim()}')`;
-    }
-
-    const palabras = (banda.nombre || 'Banda').split(" ");
-    const textoTop = palabras[0] || "";
-    const textoBottom = palabras.slice(1).join(" ") || banda.Pais || "";
-
-    let htmlCanciones = "";
-    for (let i = 1; i <= 7; i++) {
-      const nombreCancion = banda[`cancion_${i}`];
-      const idCancion = banda[`cancion_${i}_id`];
-
-      if (nombreCancion && nombreCancion !== "#N/A") {
-        const cancionObj = catálogoCanciones.find(c => c.id && c.id.toString().trim() === (idCancion || "").toString().trim());
-        
-        // Obtener la URL original de la BD y convertirla a stream directo
-        const rawUrl = cancionObj ? (cancionObj.audio || "") : "";
-        const audioUrl = fixDriveUrl(rawUrl);
-
-        htmlCanciones += `
-          <div class="box box${i}" data-src="${audioUrl}" data-title="${nombreCancion}">
-            ${nombreCancion}
-          </div>
-        `;
-      }
-    }
-
-    panel.innerHTML = `
-      <p>${textoTop}</p>
-      <div class="centro">
-        ${htmlCanciones}
-      </div>
-      <p>${textoBottom}</p>
-    `;
-
-    container.appendChild(panel);
-  });
-
-  activarEventosPaneles();
-}
-function activarEventosPaneles() {
-  const paneletes = document.querySelectorAll('.panel');
-  const caja_colores = ['#ef1df3', '#5ae6e6', '#f99a0d', '#f9186b', '#42e25d', '#1db954'];
-
-  paneletes.forEach(panel => {
-    // Escuchar clic en el panel
-    panel.onclick = function(e) {
-      // Si el clic fue en una canción (.box), no abrir/cerrar el panel
-      if (e.target.classList.contains('box')) return;
-
-      // Alternar estado de apertura
-      this.classList.toggle('open');
-    };
-
-    // Transición para desplegar texto superior e inferior
-    panel.ontransitionend = function(e) {
-      if (e.propertyName.includes('flex')) {
-        this.classList.toggle('open-active');
-      }
-    };
-  });
-
-  // Evento individual para cada casilla de canción
-  const cajas = document.querySelectorAll('.centro .box');
-  cajas.forEach(caja => {
-    caja.onclick = function(e) {
-      e.stopPropagation(); // Evita que se colapse/expanda el panel
-
-      // Cambiar color aleatorio de la variable CSS --color
-      const colorAzar = caja_colores[Math.floor(Math.random() * caja_colores.length)];
-      document.documentElement.style.setProperty('--color', colorAzar);
-
-      const src = this.getAttribute('data-src');
-      const title = this.getAttribute('data-title');
-      const mainAudioPlayer = document.getElementById('main-audio-player');
-
-      if (src && src.trim() !== "" && mainAudioPlayer) {
-        mainAudioPlayer.src = src;
-        mainAudioPlayer.currentTime = 0;
-        
-        // Intentar reproducir el audio
-        mainAudioPlayer.play()
-          .then(() => {
-            const titleElem = document.getElementById('audio-track-title');
-            if (titleElem) titleElem.textContent = title || "Canción Seleccionada";
-          })
-          .catch(err => console.error("Error al reproducir audio:", err));
-      } else {
-        alert("Esta canción no tiene una URL de audio válida asignada.");
-      }
-    };
-  });
-}
-
-function renderDeportes(deportistas) {
-  const stage = document.getElementById("sports-stage");
-  const tooltip = document.getElementById("deportes-tooltip");
-  if (!stage || !tooltip) return;
-
-  // Limpiar recortes previos si existen
-  stage.querySelectorAll('.athlete-cutout').forEach(el => el.remove());
-
-  deportistas.forEach(deportista => {
-    if (!deportista.photo) return;
-
-    const imgdep = document.createElement("img");
-    imgdep.src = deportista.photo.trim();
-    imgdep.alt = deportista.nombre || "Deportista";
-    imgdep.className = "athlete-cutout";
-
-    // Aplicar posicionamiento desde la hoja de cálculo
-    imgdep.style.bottom = deportista.pos_bottom || "0%";
-    imgdep.style.left = deportista.pos_left || "50%";
-    imgdep.style.height = deportista.height || "70%";
-    imgdep.style.zIndex = deportista.z_index || "5";
-
-    // HOVER: MOSTRAR Y MOVER TOOLTIP
-    imgdep.addEventListener("mouseenter", () => {
-      tooltip.textContent = deportista.nombre || "Atleta";
-      tooltip.classList.add("active");
-    });
-
-    imgdep.addEventListener("mousemove", (e) => {
-      const rect = stage.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      tooltip.style.left = `${x}px`;
-      tooltip.style.top = `${y - 10}px`;
-    });
-
-    imgdep.addEventListener("mouseleave", () => {
-      tooltip.classList.remove("active");
-    });
-
-    // CLICK: ABRIR LINK (WIKIPEDIA / EXTERNO)
-    imgdep.addEventListener("click", () => {
-      const url = deportista.link || `https://es.wikipedia.org/wiki/${encodeURIComponent(deportista.nombre)}`;
-      window.open(url, "_blank");
-    });
-
-    stage.appendChild(imgdep);
-  });
-}
-function renderAlbums(albums) {
-  const grid = document.getElementById("albums-grid");
-  if (!grid) return;
-
-  grid.innerHTML = "f";
-
-  albums.forEach((album, index) => {
-    if (!album.poster) return;
-
-    const card = document.createElement("div");
-    
-    // Los primeros 4 álbumes (índices 0, 1, 2 y 3) reciben la clase 'item-big'
-    const esTop4 = index < 4;
-    card.className = `album-card ${esTop4 ? 'item-big' : ''}`;
-
-    card.innerHTML = `
-      <img src="${album.poster.trim()}" alt="${album.nombre || 'Álbum'}" >
-      <div class="album-tag">
-        <span class="album-title">${album.nombre || ''}</span>
-        <span class="album-artist">${album.artista || ''}</span>
-        <span class="album-year">${album.year || ''}</span>
-      </div>
-    `;
-
-    // REPRODUCCIÓN DE AUDIO AL HACER CLIC
-    card.addEventListener("click", () => {
-      const mainAudioPlayer = document.getElementById("main-audio-player");
-      const titleElem = document.getElementById("audio-track-title");
-
-      if (album.audio && mainAudioPlayer) {
-        mainAudioPlayer.src = album.audio.trim();
-        mainAudioPlayer.currentTime = 0;
-        mainAudioPlayer.play();
-
-        if (titleElem) {
-          titleElem.textContent = `${album.nombre} - ${album.artista}`;
+// Carga principal de datos desde Apps Script
+function cargarDatosUsuario(email) {
+  fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
+    .then(res => res.json())
+    .then(data => {
+      // 1. Perfil
+      if (data.usuario) {
+        document.getElementById("user-name").innerText = `Perfil de ${data.usuario.nombre}`;
+        document.getElementById("nombreOnTop").innerText = data.usuario.nombre.toUpperCase();
+        if (data.usuario.foto_perfil) {
+          const avatar = document.getElementById("user-avatar");
+          avatar.src = data.usuario.foto_perfil;
+          avatar.style.display = "block";
         }
       }
-    });
 
-    grid.appendChild(card);
+      // 2. Películas
+      renderCarrusel('fav-movies', data.cat_peliculas, 'pelicula');
+
+      // 3. Series
+      renderCarrusel('fav-series', data.cat_series, 'serie');
+
+      renderCarrusel('fav-animes', data.cat_animes, 'anime');
+
+      // 4. Canciones
+      renderCanciones(data.cat_canciones);
+
+      renderBandas(data.cat_bandas, data.cat_canciones);
+
+      // 5. Álbumes
+      renderAlbums(data.cat_albums);
+
+      // 6. Libros
+      renderCarrusel('fav-books', data.cat_libros, 'libro');
+
+      // 7. Personajes
+      renderPersonajes(data.cat_deportes);
+    })
+    .catch(err => console.error("Error al cargar datos:", err));
+}
+
+// Renderizado de carruseles (Películas, Series, Animes, Libros)
+function renderCarrusel(containerId, items, tipo) {
+  const container = document.getElementById(containerId);
+  if (!container || !items) return;
+
+  container.innerHTML = items.map(item => {
+    const poster = item.poster || item.photo || "https://via.placeholder.com/160x220";
+    const titulo = item.nombre || item.Personaje || item.cancion || "";
+
+    if (tipo === 'libro') {
+      const link = item.link ? `<a href="${item.link}" target="_blank" class="btn-read">Leer</a>` : '';
+      return `
+        <div class="book-card">
+          <img src="${poster}" alt="${titulo}" />
+          <h4>${titulo}</h4>
+          ${link}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="card" onclick="reproducirMedia('${item.video || ''}', '${titulo}')">
+        <img src="${poster}" alt="${titulo}" />
+        <h4>${titulo}</h4>
+        <p>${item.genero || item.year || ''}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+// Renderizado de canciones
+function renderCanciones(canciones) {
+  const tbody = document.getElementById("songs-list");
+  if (!tbody || !canciones) return;
+
+  tbody.innerHTML = canciones.map(c => `
+    <tr>
+      <td class="play-btn-cell" onclick="reproducirAudio('${c.audio || ''}', '${c.cancion || c.nombre}', '${c.artista || ''}')">▶</td>
+      <td>${c.cancion || c.nombre || '-'}</td>
+      <td>${c.artista || '-'}</td>
+      <td>${c.album || '-'}</td>
+    </tr>
+  `).join('');
+}
+
+function renderBandas(bandas, canciones) {
+  const container = document.getElementById("panels-container");
+  const section = document.getElementById("bandas");
+  if (!container || !bandas || bandas.length === 0) return;
+
+  // Mostrar la sección si tiene bandas
+  if (section) section.style.display = "block";
+
+  // Mapear cada banda a un panel vertical
+  container.innerHTML = bandas.map(b => {
+    // Buscar las canciones pertenecientes a esta banda o coincidencia por IDs
+    const listaCancionesBanda = [
+      { id: b['cancion_1_id'] || b.sng_1, nombre: b.cancion_1 || 'Canción 1' },
+      { id: b['cancion_2_id'] || b.sng_2, nombre: b['cancion_2'] || 'Canción 2' },
+      { id: b['cancion_3_id'] || b.sng_3, nombre: b['cancion_3'] || 'Canción 3' },
+      { id: b['cancion_4_id'] || b.sng_4, nombre: b['cancion_4'] || 'Canción 4' },
+      { id: b['cancion_5_id'] || b.sng_5, nombre: b['cancion_5'] || 'Canción 5' },
+      { id: b['cancion_6_id'] || b.sng_6, nombre: b['cancion_6'] || 'Canción 6' }
+    ].filter(item => item.nombre && item.nombre !== '#N/A');
+
+    const centroHTML = listaCancionesBanda.map((item, idx) => {
+      // Buscar la URL del audio en el catálogo global de canciones si coincide el nombre o id
+      const cancionObj = canciones ? canciones.find(c => (c.id === item.id || c.cancion === item.nombre)) : null;
+      const audioUrl = cancionObj ? cancionObj.audio : '';
+
+      return `
+        <div class="box box${idx + 1}" 
+             onclick="event.stopPropagation(); reproducirAudio('${audioUrl}', '${item.nombre}', '${b.nombre}')">
+          ${item.nombre}
+        </div>
+      `;
+    }).join('');
+
+    const bgPhoto = b.photo || b.poster || 'https://via.placeholder.com/600x800';
+
+    return `
+      <div class="panel" style="background-image: url('${bgPhoto}');">
+        <p>${b.nombre}</p>
+        <div class="centro">
+          ${centroHTML}
+        </div>
+        <p>${b.Pais || b.pais || ''}</p>
+      </div>
+    `;
+  }).join('');
+
+  // Activar la interactividad de flex grow al hacer click
+  initPanelsEvents();
+}
+
+// Eventos de apertura/cierre de los paneles
+function initPanelsEvents() {
+  const panels = document.querySelectorAll('.panel');
+
+  function toggleOpen() {
+    // Si ya está abierto, se cierra; si no, cierra los demás y abre este
+    const isOpen = this.classList.contains('open');
+    panels.forEach(panel => panel.classList.remove('open'));
+    if (!isOpen) {
+      this.classList.add('open');
+    }
+  }
+
+  function toggleActive(e) {
+    if (e.propertyName.includes('flex')) {
+      this.classList.toggle('open-active', this.classList.contains('open'));
+    }
+  }
+
+  panels.forEach(panel => {
+    panel.addEventListener('click', toggleOpen);
+    panel.addEventListener('transitionend', toggleActive);
   });
 }
 
-cargarSpotiflix();
+// Renderizado de Álbumes
+function renderAlbums(albums) {
+  const container = document.getElementById("albums-grid");
+  if (!container || !albums) return;
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBanner.style.display = 'flex';
-});
+  container.innerHTML = albums.map((alb, i) => {
+    const isBig = i < 4 ? 'item-big' : '';
+    return `
+      <div class="album-card ${isBig}" onclick="reproducirAudio('${alb.audio || ''}', '${alb.nombre}', '${alb.artista}')">
+        <img src="${alb.poster || 'https://via.placeholder.com/180'}" alt="${alb.nombre}" />
+        <div class="album-tag">
+          <span class="album-title">${alb.nombre}</span>
+          <span class="album-artist">${alb.artista}</span>
+          <span class="album-year">${alb.year || ''}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
 
-installBtn.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') installBanner.style.display = 'none';
-    deferredPrompt = null;
+// Renderizado de Personajes
+function renderPersonajes(personajes) {
+  const stage = document.getElementById("sports-stage");
+  if (!stage || !personajes) return;
+
+  stage.innerHTML = `<div id="deportes-tooltip" class="sports-tooltip"></div>` + 
+    personajes.map((p, idx) => {
+      const img = p.photo || p.poster || '';
+      const leftPos = (idx * 15) % 85; 
+      return `
+        <img src="${img}" 
+             alt="${p.Personaje || p.nombre}" 
+             class="athlete-cutout" 
+             style="left: ${leftPos}%; bottom: 10%; height: 220px;"
+             onmouseenter="mostrarTooltip('${p.Personaje || p.nombre}', '${p.deporte || p.Pais || ''}')"
+             onmouseleave="ocultarTooltip()" />
+      `;
+    }).join('');
+}
+
+function mostrarTooltip(nombre, desc) {
+  const tooltip = document.getElementById("deportes-tooltip");
+  if (tooltip) {
+    tooltip.innerText = `${nombre} (${desc})`;
+    tooltip.classList.add("active");
   }
-});
+}
+
+function ocultarTooltip() {
+  const tooltip = document.getElementById("deportes-tooltip");
+  if (tooltip) tooltip.classList.remove("active");
+}
+
+function reproducirMedia(url, titulo) {
+  if (!url) return;
+  const player = document.getElementById("main-video-player");
+  const source = document.getElementById("video-source");
+  const titleElem = document.getElementById("playing-title");
+
+  source.src = url;
+  player.load();
+  player.play();
+  if (titleElem) titleElem.innerText = titulo;
+}
+
+function reproducirAudio(url, titulo, artista) {
+  if (!url) return;
+  const audio = document.getElementById("main-audio-player");
+  document.getElementById("audio-track-title").innerText = titulo;
+  document.getElementById("audio-track-artist").innerText = artista || '-';
+
+  audio.src = url;
+  audio.play();
+}
+
+function moverCarrusel(id, direccion) {
+  const elem = document.getElementById(id);
+  if (elem) {
+    elem.scrollBy({ left: direccion * 300, behavior: 'smooth' });
+  }
+}
 
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then((reg) => {
-                console.log('Service Worker registrado con éxito:', reg.scope);
-            })
-            .catch((err) => {
-                console.error('Error al registrar Service Worker:', err);
-            });
-    });
+  navigator.serviceWorker.register('./sw.js')
+    .then(reg => console.log('Service Worker registrado:', reg))
+    .catch(err => console.error('Error en Service Worker:', err));
 }
