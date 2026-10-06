@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycby-OLncoEAoMC8IvOAjriq_Il74ChyLJ0Hl6MXXUKrOfL1hw_q59aVbRf0b88d-B0V9/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbw_jjfqWdYmN_YjHwtlbldJyWtdjMCynvQaPtFaop3vNQAU9EjaoEhcJAchmyCrzgLC/exec"; 
 
 let deferredPrompt;
 let playlist = [];
@@ -303,15 +303,3 @@ if ('serviceWorker' in navigator) {
     .then(reg => console.log('Service Worker registrado:', reg))
     .catch(err => console.error('Error en Service Worker:', err));
 }
-
-if (tipo === 'serie') {
-      // Codificamos y escapamos los episodios para pasarlos de forma segura al evento
-      const episodiosData = JSON.stringify(item.episodios || []).replace(/"/g, '&quot;');
-      return `
-        <div class="card" onclick="abrirModalEpisodios('${titulo}', '${episodiosData}')">
-          <img src="${poster}" alt="${titulo}" loading="lazy" />
-          <h4>${titulo}</h4>
-          <p>${item.genero || item.year || ''}</p>
-        </div>
-      `;
-    }
