@@ -91,11 +91,12 @@ function logout() {
 }
 
 /* CARGA ASINCRÓNICA PROGRESIVA PARA EVITAR BLOQUEOS Y TIEMPOS DE ESPERA LARGOS */
+// Carga principal optimizada y asincrónica desde Apps Script
 function cargarDatosUsuarioAsincronico(email) {
   fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
     .then(res => res.json())
     .then(data => {
-      // 1. Renderizar perfil y elementos inmediatos
+      // 1. Perfil del usuario
       if (data.usuario) {
         document.getElementById("user-name").innerText = `Perfil de ${data.usuario.nombre}`;
         document.getElementById("nombreOnTop").innerText = data.usuario.nombre.toUpperCase();
@@ -106,7 +107,7 @@ function cargarDatosUsuarioAsincronico(email) {
         }
       }
 
-      // 2. Carga diferida por bloques usando requestAnimationFrame o setTimeout breve para no congelar el hilo principal
+      // 2. Carga por bloques para agilizar el renderizado visual y evitar bloqueos
       setTimeout(() => {
         renderCarrusel('fav-movies', data.cat_peliculas, 'pelicula');
         renderCarrusel('fav-series', data.cat_series, 'serie');
@@ -119,6 +120,7 @@ function cargarDatosUsuarioAsincronico(email) {
           renderCanciones(playlist);
         }
         renderAlbums(data.cat_albums);
+        renderBandas(data.cat_bandas, data.cat_canciones);
       }, 150);
 
       setTimeout(() => {
@@ -126,9 +128,8 @@ function cargarDatosUsuarioAsincronico(email) {
         renderPersonajes(data.cat_deportes);
       }, 250);
     })
-    .catch(err => console.error("Error al cargar datos asincrónicos:", err));
+    .catch(err => console.error("Error al cargar datos:", err));
 }
-
 function renderCarrusel(containerId, items, tipo) {
   const container = document.getElementById(containerId);
   if (!container || !items) return;
