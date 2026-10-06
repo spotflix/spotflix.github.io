@@ -203,6 +203,17 @@
       </div>
     </div>
 
+    <!-- Modal para reproducir episodios de series -->
+    <div id="episode-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="cerrarModalEpisodios()">&times;</span>
+        <h3 id="modal-serie-title">Selecciona un Episodio</h3>
+        <div id="episodes-list" class="episodes-grid"></div>
+        <div class="video-container">
+          <iframe id="modal-iframe" src="" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
     <script src="app.js"></script>
 </body>
 </html>
