@@ -1,0 +1,697 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #141414;
+  color: #ffffff;
+  padding-top: 70px; /* Offset para la Navbar fija */
+  padding-bottom: 20px;
+}
+
+/* NAVBAR FIJA SUPERIOR */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #222222;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+.nav-container {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-logo {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #e50914;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 24px;
+}
+
+.nav-links a {
+  color: #aaaaaa;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: #ffffff;
+}
+
+.user-header,
+.player-section,
+.section-container {
+  max-width: 1080px;
+  margin: 0 auto 25px auto;
+}
+
+/* REPRODUCTOR ESTRICTO DE TAMAÑO FIJO 16:9 */
+.player-section {
+  background-color: #1f1f1f;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* Mantiene la proporción siempre */
+  max-height: 520px;
+  background-color: #000000;
+}
+
+.video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ajusta la imagen dentro sin deformar ni estirar */
+  display: block;
+}
+
+.video-details {
+  padding: 16px 20px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.video-details h2 {
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+
+.playing-info {
+  font-size: 0.9rem;
+  color: #aaaaaa;
+}
+
+/* CARRUSELES Y TARJETAS GENERATES */
+.section-title {
+  font-size: 1.2rem;
+  color: #e5e5e5;
+  margin-bottom: 12px;
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  min-width: 160px;
+  max-width: 160px;
+  background: #1f1f1f;
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+  padding-bottom: 10px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.04);
+  background: #2a2a2a;
+}
+
+.card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.card h4 {
+  margin: 10px 8px 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card p {
+  font-size: 0.75rem;
+  color: #aaaaaa;
+}
+
+/* LIBROS FAVS (ESTILO CON BOTÓN "LEER") */
+.book-card {
+  position: relative;
+  min-width: 160px;
+  max-width: 160px;
+  background: #1f1f1f;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 12px;
+}
+
+.book-card img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+}
+
+.btn-read {
+  margin-top: 10px;
+  padding: 6px 16px;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #e50914;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: 1px solid #1db954;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-read:hover {
+  background-color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* BANNER DE MÚSICA */
+.songs-banner {
+  background-color: #ffffff;
+  color: #000000;
+  text-align: center;
+  padding: 12px 0;
+  margin: 40px auto 20px auto;
+  max-width: 1080px;
+}
+
+.songs-banner h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* TABLA DE CANCIONES */
+.songs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #0d0d0d;
+  color: #ffffff;
+  font-size: 0.95rem;
+  margin-bottom: 50px;
+}
+
+.songs-table th {
+  background-color: #1db954;
+  color: #000000;
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 700;
+}
+
+.songs-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.songs-table tr:hover {
+  background-color: #1a1a1a;
+}
+
+.play-btn-cell {
+  text-align: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #1db954;
+}
+
+.song-link {
+  color: #2e90fa;
+  text-decoration: none;
+}
+
+/* REPRODUCTOR DE AUDIO FIJO */
+.audio-player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #1db954;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.now-playing-info h4 {
+  font-size: 0.95rem;
+}
+
+.audio-controls {
+  flex-grow: 1;
+  max-width: 500px;
+}
+
+.audio-controls audio {
+  width: 100%;
+  height: 36px;
+}
+
+/* BOTONES NAVEGACIÓN CARRUSEL */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  border: none;
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prev-btn { left: -20px; }
+.next-btn { right: -20px; }
+
+/* TARJETAS DE LIBROS */
+.book-card {
+  position: relative;
+  min-width: 160px;
+  max-width: 160px;
+  background: #1f1f1f;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 12px;
+  transition: transform 0.2s ease;
+}
+
+.book-card:hover {
+  transform: scale(1.04);
+}
+
+.book-card img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+}
+
+/* Botón Leer similar al diseño previo */
+.btn-read {
+  margin-top: 10px;
+  padding: 5px 18px;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #e50914;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: 1px solid #1db954;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-read:hover {
+  background-color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* ESTRUCTURA BRAND / AVATAR */
+.brand-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #1db954; /* Borde verde estilo Spotify */
+}
+
+/* CONTENEDOR CON SCROLL PARA LA TABLA DE CANCIONES */
+.table-scroll-container {
+  height: 50vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+}
+
+/* Estilos de la tabla ajustados para scroll */
+.songs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #0d0d0d;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+/* Header pegoso para que no desaparezca al hacer scroll */
+.songs-table th {
+  position: sticky;
+  top: 0;
+  background-color: #1db954;
+  color: #000000;
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 700;
+  z-index: 10;
+}
+
+.songs-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+/* SECCIÓN BANDAS */
+.bandas-section {
+  overflow: hidden;
+  height: 70vh;
+  margin: 40px 0;
+  background-color: #000;
+  border-radius: 4px;
+  display:none;
+}
+
+.panels {
+  height: 100%;
+  display: flex;
+}
+
+.panel {
+  background-color: #111;
+  color: #ffffff;
+  text-align: center;
+  align-items: center;
+  transition: flex 0.7s cubic-bezier(0.61, -0.19, 0.7, -0.11), font-size 0.7s ease;
+  background-size: cover;
+  background-position: center;
+  flex: 1;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de oscurecimiento para legibilidad de letras */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1;
+}
+
+.panel > * {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  width: 100%;
+  transition: transform 0.5s;
+}
+
+.panel > *:first-child { transform: translateY(-100%); }
+.panel.open-active > *:first-child { transform: translateY(0); }
+
+.panel > *:last-child { transform: translateY(100%); }
+.panel.open-active > *:last-child { transform: translateY(0); }
+
+.panel.open {
+  flex: 5;
+}
+.panel p {
+  text-transform: uppercase;
+  font-weight: 800;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+  font-size: 2.2rem;
+  padding: 10px 0;
+  margin: 0;
+  z-index: 2;
+  color: #ffffff;
+  font-family: sans-serif;
+}
+
+/* CENTRO DE CANCIONES */
+.centro {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  opacity: 0.9;
+  transition: opacity 0.5s ease;
+}
+
+.panel.open .centro {
+  opacity: 1;
+}
+.centro .box {
+  width: 100%;
+  padding: 5px 0;
+  font-size: 0.485rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.centro .box:hover {
+  filter: brightness(1.2);
+  cursor: pointer;
+}
+
+.panel.open .centro .box {
+  font-size: 0.5rem;
+  padding: 8px 0;
+}
+
+.centro .box1 { background-color: #42e25d; color: #000; } /* Verde brillante */
+.centro .box2 { background-color: #ef1df3; }              /* Magenta/Rosa */
+.centro .box3 { background-color: #5ae6e6; color: #000; } /* Cian/Azul claro */
+.centro .box4 { background-color: #0c2121; font-weight: 900; font-size: 0.6rem; } /* Fila destacada centro */
+.centro .box5 { background-color: #f99a0d; }              /* Naranja */
+.centro .box6 { background-color: #f9186b; }              /* Rojo/Rosado */
+.centro .box7 { background-color: #f6f9e7; color: #000; } /* Blanco/Amarillo claro */
+
+/* LIENZO DEPORTES */
+.deportes-container {
+  width: 100%;
+  height: 75vh;
+  background-color: #050505;
+  position: relative;
+  overflow: hidden;
+  margin: 30px 0;
+  display:none;
+}
+
+.sports-stage {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  /* Imagen principal/fondo grande (ej. Ballack / Grafitti rosa y azul) */
+  /*background-image: url('https://ivanguillermo.github.io/likes/deportes/ballack.png'); */
+  background-size: cover;
+  background-position: center bottom;
+}
+
+/* PERSONAJES CUTOUT (PNG) */
+.athlete-cutout {
+  position: absolute;
+  cursor: pointer;
+  object-fit: contain;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), filter 0.3s ease;
+  user-select: none;
+}
+
+/* EFECTO HOVER: Agrandamiento + Glow Neon */
+.athlete-cutout:hover {
+  transform: scale(1.08) translateY(-6px);
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 30px rgba(29, 185, 84, 0.6));
+  z-index: 99 !important;
+}
+
+/* TOOLTIP ESTILO SPOTIFLIX */
+.sports-tooltip {
+  position: absolute;
+  padding: 6px 14px;
+  background: rgba(18, 18, 18, 0.92);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -120%);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  z-index: 100;
+  white-space: nowrap;
+}
+
+.sports-tooltip.active {
+  opacity: 1;
+}
+
+/* CONTAINER Y GRID DE ÁLBUMES */
+.albums-container {
+  padding: 30px 0;
+  background-color: #000;
+}
+
+.albums-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-auto-rows: 180px;
+  grid-auto-flow: dense;
+  gap: 12px;
+}
+
+/* CARTA DE ÁLBUM */
+.album-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #111;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* LOS PRIMEROS 4 ÁLBUMES LLEVAN ESTA CLASE (4 VECES MÁS GRANDES) */
+.album-card.item-big {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.album-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.album-card:hover img {
+  transform: scale(1.06);
+  filter: brightness(1.1);
+}
+
+/* ETIQUETA DIAGONAL EN EL CENTRO */
+.album-tag {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  background: rgba(0, 0, 0, 0.88);
+  color: #fff;
+  padding: 8px 14px;
+  text-align: center;
+  border-radius: 2px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  width: 80%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.album-card:hover .album-tag {
+  transform: translate(-50%, -50%) rotate(-30deg) scale(1.08);
+  background: #1db954;
+  color: #000;
+}
+
+.album-tag .album-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.album-tag .album-artist {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 2px;
+  opacity: 0.9;
+}
+
+.album-tag .album-year {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.75;
+}
+
+.album-card:hover .album-tag .album-year {
+  color: #000;
+}
+
+.install-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--accent-purple);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
