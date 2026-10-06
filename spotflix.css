@@ -12,8 +12,8 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #141414;
   color: #ffffff;
-  padding-top: 70px; /* Offset para la Navbar fija */
-  padding-bottom: 20px;
+  padding-top: 70px;
+  padding-bottom: 90px;
 }
 
 /* NAVBAR FIJA SUPERIOR */
@@ -23,7 +23,7 @@ body {
   left: 0;
   width: 100%;
   height: 60px;
-  background-color: rgba(15, 15, 15, 0.95);
+  background-color: rgba(15, 15, 15, 0.98);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid #222222;
   z-index: 1000;
@@ -51,7 +51,8 @@ body {
 .nav-links {
   display: flex;
   list-style: none;
-  gap: 24px;
+  gap: 20px;
+  align-items: center;
 }
 
 .nav-links a {
@@ -66,14 +67,47 @@ body {
   color: #ffffff;
 }
 
+/* MENÚ HAMBURGUESA MÓVIL */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: rgba(15, 15, 15, 0.98);
+    flex-direction: column;
+    padding: 20px 0;
+    border-bottom: 1px solid #333;
+    gap: 16px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+  }
+  .nav-links.active {
+    display: flex;
+  }
+}
+
 .user-header,
 .player-section,
 .section-container {
   max-width: 1080px;
   margin: 0 auto 25px auto;
+  padding: 0 15px;
 }
 
-/* REPRODUCTOR ESTRICTO DE TAMAÑO FIJO 16:9 */
+/* REPRODUCTOR DE VIDEO */
 .player-section {
   background-color: #1f1f1f;
   border-radius: 12px;
@@ -84,7 +118,7 @@ body {
 .video-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9; /* Mantiene la proporción siempre */
+  aspect-ratio: 16 / 9;
   max-height: 520px;
   background-color: #000000;
 }
@@ -92,7 +126,7 @@ body {
 .video-wrapper video {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* Ajusta la imagen dentro sin deformar ni estirar */
+  object-fit: contain;
   display: block;
 }
 
@@ -102,18 +136,18 @@ body {
 }
 
 .video-details h2 {
-  font-size: 1.4rem;
-  margin-bottom: 6px;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
 }
 
 .playing-info {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #aaaaaa;
 }
 
-/* CARRUSELES Y TARJETAS GENERATES */
+/* CARRUSELES Y TARJETAS */
 .section-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #e5e5e5;
   margin-bottom: 12px;
 }
@@ -125,11 +159,10 @@ body {
 
 .carousel-track {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   overflow-x: auto;
   scroll-behavior: smooth;
   padding: 10px 0;
-  -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
@@ -137,80 +170,61 @@ body {
   display: none;
 }
 
-.card {
-  min-width: 160px;
-  max-width: 160px;
+.card, .book-card {
+  min-width: 130px;
+  max-width: 130px;
   background: #1f1f1f;
   border-radius: 8px;
   overflow: hidden;
   text-align: center;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
   flex-shrink: 0;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
-.card:hover {
-  transform: scale(1.04);
-  background: #2a2a2a;
+@media (min-width: 768px) {
+  .card, .book-card {
+    min-width: 160px;
+    max-width: 160px;
+  }
 }
 
-.card img {
+.card img, .book-card img {
   width: 100%;
-  height: 220px;
+  height: 180px;
   object-fit: cover;
 }
 
-.card h4 {
-  margin: 10px 8px 4px;
-  font-size: 0.85rem;
+@media (min-width: 768px) {
+  .card img, .book-card img {
+    height: 220px;
+  }
+}
+
+.card h4, .book-card h4 {
+  margin: 8px 6px 2px;
+  font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .card p {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #aaaaaa;
 }
 
-/* LIBROS FAVS (ESTILO CON BOTÓN "LEER") */
-.book-card {
-  position: relative;
-  min-width: 160px;
-  max-width: 160px;
-  background: #1f1f1f;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 12px;
-}
-
-.book-card img {
-  width: 100%;
-  height: 230px;
-  object-fit: cover;
-}
-
 .btn-read {
-  margin-top: 10px;
-  padding: 6px 16px;
+  margin-top: 8px;
+  padding: 4px 12px;
   background-color: rgba(255, 255, 255, 0.85);
   color: #e50914;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   border: 1px solid #1db954;
   border-radius: 20px;
   text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.btn-read:hover {
-  background-color: #ffffff;
-  transform: scale(1.05);
 }
 
 /* BANNER DE MÚSICA */
@@ -218,395 +232,85 @@ body {
   background-color: #ffffff;
   color: #000000;
   text-align: center;
-  padding: 12px 0;
-  margin: 40px auto 20px auto;
+  padding: 10px 0;
+  margin: 30px auto 15px auto;
   max-width: 1080px;
 }
 
 .songs-banner h1 {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 /* TABLA DE CANCIONES */
-.songs-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #0d0d0d;
-  color: #ffffff;
-  font-size: 0.95rem;
-  margin-bottom: 50px;
-}
-
-.songs-table th {
-  background-color: #1db954;
-  color: #000000;
-  text-align: left;
-  padding: 12px 16px;
-  font-weight: 700;
-}
-
-.songs-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #1a1a1a;
-}
-
-.songs-table tr:hover {
-  background-color: #1a1a1a;
-}
-
-.play-btn-cell {
-  text-align: center;
-  cursor: pointer;
-  font-size: 1.1rem;
-  color: #1db954;
-}
-
-.song-link {
-  color: #2e90fa;
-  text-decoration: none;
-}
-
-/* REPRODUCTOR DE AUDIO FIJO */
-.audio-player-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #1db954;
-  color: #000000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 24px;
-  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.now-playing-info h4 {
-  font-size: 0.95rem;
-}
-
-.audio-controls {
-  flex-grow: 1;
-  max-width: 500px;
-}
-
-.audio-controls audio {
-  width: 100%;
-  height: 36px;
-}
-
-/* BOTONES NAVEGACIÓN CARRUSEL */
-.nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.75);
-  color: #ffffff;
-  border: none;
-  font-size: 1.2rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.prev-btn { left: -20px; }
-.next-btn { right: -20px; }
-
-/* TARJETAS DE LIBROS */
-.book-card {
-  position: relative;
-  min-width: 160px;
-  max-width: 160px;
-  background: #1f1f1f;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 12px;
-  transition: transform 0.2s ease;
-}
-
-.book-card:hover {
-  transform: scale(1.04);
-}
-
-.book-card img {
-  width: 100%;
-  height: 230px;
-  object-fit: cover;
-}
-
-/* Botón Leer similar al diseño previo */
-.btn-read {
-  margin-top: 10px;
-  padding: 5px 18px;
-  background-color: rgba(255, 255, 255, 0.85);
-  color: #e50914;
-  font-weight: 700;
-  font-size: 0.8rem;
-  border: 1px solid #1db954;
-  border-radius: 20px;
-  text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.btn-read:hover {
-  background-color: #ffffff;
-  transform: scale(1.08);
-}
-
-/* ESTRUCTURA BRAND / AVATAR */
-.brand-logo-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #1db954; /* Borde verde estilo Spotify */
-}
-
-/* CONTENEDOR CON SCROLL PARA LA TABLA DE CANCIONES */
 .table-scroll-container {
-  height: 50vh;
+  height: 40vh;
   overflow-y: auto;
-  overflow-x: hidden;
   position: relative;
   border: 1px solid #1a1a1a;
   border-radius: 8px;
+  max-width: 1080px;
+  margin: 0 auto;
 }
 
-/* Estilos de la tabla ajustados para scroll */
 .songs-table {
   width: 100%;
   border-collapse: collapse;
   background-color: #0d0d0d;
   color: #ffffff;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
-/* Header pegoso para que no desaparezca al hacer scroll */
 .songs-table th {
   position: sticky;
   top: 0;
   background-color: #1db954;
   color: #000000;
   text-align: left;
-  padding: 12px 16px;
-  font-weight: 700;
+  padding: 10px 12px;
   z-index: 10;
 }
 
 .songs-table td {
-  padding: 12px 16px;
+  padding: 10px 12px;
   border-bottom: 1px solid #1a1a1a;
 }
 
-/* SECCIÓN BANDAS */
-.bandas-section {
-  overflow: hidden;
-  height: 70vh;
-  margin: 40px 0;
-  background-color: #000;
-  border-radius: 4px;  
+.songs-table tr.playing-row {
+  background-color: rgba(29, 185, 84, 0.2);
 }
 
-.panels {
-  height: 100%;
-  display: flex;
-}
-
-.panel {
-  background-color: #111;
-  color: #ffffff;
+.play-btn-cell {
   text-align: center;
-  align-items: center;
-  transition: flex 0.7s cubic-bezier(0.61, -0.19, 0.7, -0.11), font-size 0.7s ease;
-  background-size: cover;
-  background-position: center;
-  flex: 1;
-  justify-content: space-between;
-  display: flex;
-  flex-direction: column;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
+  color: #1db954;
 }
 
-/* Efecto de oscurecimiento para legibilidad de letras */
-.panel::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 1;
-}
-
-.panel > * {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  width: 100%;
-  transition: transform 0.5s;
-}
-
-.panel > *:first-child { transform: translateY(-100%); }
-.panel.open-active > *:first-child { transform: translateY(0); }
-
-.panel > *:last-child { transform: translateY(100%); }
-.panel.open-active > *:last-child { transform: translateY(0); }
-
-.panel.open {
-  flex: 5;
-}
-.panel p {
-  text-transform: uppercase;
-  font-weight: 800;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
-  font-size: 2.2rem;
-  padding: 10px 0;
-  margin: 0;
-  z-index: 2;
-  color: #ffffff;
-  font-family: sans-serif;
-}
-
-/* CENTRO DE CANCIONES */
-.centro {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-  opacity: 0.9;
-  transition: opacity 0.5s ease;
-}
-
-.panel.open .centro {
-  opacity: 1;
-}
-.centro .box {
-  width: 100%;
-  padding: 5px 0;
-  font-size: 0.485rem;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  border: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-.centro .box:hover {
-  filter: brightness(1.2);
-  cursor: pointer;
-}
-
-.panel.open .centro .box {
-  font-size: 0.5rem;
-  padding: 8px 0;
-}
-
-.centro .box1 { background-color: #42e25d; color: #000; } /* Verde brillante */
-.centro .box2 { background-color: #ef1df3; }              /* Magenta/Rosa */
-.centro .box3 { background-color: #5ae6e6; color: #000; } /* Cian/Azul claro */
-.centro .box4 { background-color: #0c2121; font-weight: 900; font-size: 0.6rem; } /* Fila destacada centro */
-.centro .box5 { background-color: #f99a0d; }              /* Naranja */
-.centro .box6 { background-color: #f9186b; }              /* Rojo/Rosado */
-.centro .box7 { background-color: #f6f9e7; color: #000; } /* Blanco/Amarillo claro */
-
-/* LIENZO DEPORTES */
-.deportes-container {
-  width: 100%;
-  height: 75vh;
-  background-color: #050505;
-  position: relative;
-  overflow: hidden;
-  margin: 30px 0;
-  
-}
-
-.sports-stage {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  /* Imagen principal/fondo grande (ej. Ballack / Grafitti rosa y azul) */
-  /*background-image: url('https://ivanguillermo.github.io/likes/deportes/ballack.png'); */
-  background-size: cover;
-  background-position: center bottom;
-}
-
-/* PERSONAJES CUTOUT (PNG) */
-.athlete-cutout {
-  position: absolute;
-  cursor: pointer;
-  object-fit: contain;
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), filter 0.3s ease;
-  user-select: none;
-}
-
-/* EFECTO HOVER: Agrandamiento + Glow Neon */
-.athlete-cutout:hover {
-  transform: scale(1.08) translateY(-6px);
-  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 30px rgba(29, 185, 84, 0.6));
-  z-index: 99 !important;
-}
-
-/* TOOLTIP ESTILO SPOTIFLIX */
-.sports-tooltip {
-  position: absolute;
-  padding: 6px 14px;
-  background: rgba(18, 18, 18, 0.92);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate(-50%, -120%);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  z-index: 100;
-  white-space: nowrap;
-}
-
-.sports-tooltip.active {
-  opacity: 1;
-}
-
-/* CONTAINER Y GRID DE ÁLBUMES */
+/* ÁLBUMES GRID (4 columnas en móvil, bloques 2x2 para grandes) */
 .albums-container {
-  padding: 30px 0;
+  padding: 20px 15px;
   background-color: #000;
+  max-width: 1080px;
+  margin: 0 auto;
 }
 
 .albums-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  grid-auto-rows: 180px;
-  grid-auto-flow: dense;
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr); /* 4 columnas en móvil */
+  grid-auto-rows: 85px; /* Altura compacta para móviles */
+  gap: 8px;
 }
 
-/* CARTA DE ÁLBUM */
+@media (min-width: 768px) {
+  .albums-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-auto-rows: 180px;
+    gap: 12px;
+  }
+}
+
 .album-card {
   position: relative;
   overflow: hidden;
@@ -616,7 +320,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* LOS PRIMEROS 4 ÁLBUMES LLEVAN ESTA CLASE (4 VECES MÁS GRANDES) */
+/* Los primeros 4 álbumes ocupan 2 de alto y 2 de ancho */
 .album-card.item-big {
   grid-column: span 2;
   grid-row: span 2;
@@ -626,82 +330,207 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease, filter 0.4s ease;
 }
 
-.album-card:hover img {
-  transform: scale(1.06);
-  filter: brightness(1.1);
-}
-
-/* ETIQUETA DIAGONAL EN EL CENTRO */
 .album-tag {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-30deg);
-  background: rgba(0, 0, 0, 0.88);
+  transform: translate(-50%, -50%) rotate(-20deg);
+  background: rgba(0, 0, 0, 0.85);
   color: #fff;
-  padding: 8px 14px;
+  padding: 4px 6px;
   text-align: center;
   border-radius: 2px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
-  pointer-events: none;
-  width: 80%;
+  width: 85%;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease, background 0.3s ease;
 }
 
-.album-card:hover .album-tag {
-  transform: translate(-50%, -50%) rotate(-30deg) scale(1.08);
-  background: #1db954;
-  color: #000;
+@media (min-width: 768px) {
+  .album-tag {
+    padding: 8px 14px;
+    transform: translate(-50%, -50%) rotate(-30deg);
+  }
 }
 
 .album-tag .album-title {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.6rem;
   font-weight: 800;
   text-transform: uppercase;
-  line-height: 1.1;
 }
 
-.album-tag .album-artist {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-top: 2px;
-  opacity: 0.9;
+.album-tag .album-artist, .album-tag .album-year {
+  display: none; /* Ocultar detalles menores en móvil muy pequeño para evitar saturación */
 }
 
-.album-tag .album-year {
-  display: block;
-  font-size: 0.7rem;
-  opacity: 0.75;
+@media (min-width: 768px) {
+  .album-tag .album-title { font-size: 0.9rem; }
+  .album-tag .album-artist { display: block; font-size: 0.75rem; }
+  .album-tag .album-year { display: block; font-size: 0.7rem; }
 }
 
-.album-card:hover .album-tag .album-year {
-  color: #000;
-}
-
-.install-banner {
+/* REPRODUCTOR DE AUDIO INFERIOR */
+.audio-player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #181818;
+  border-top: 1px solid #282828;
+  color: #ffffff;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--accent-purple);
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  flex-direction: column;
+  padding: 8px 15px;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
 }
 
-/* MODAL Y PANTALLA DE LOGIN */
+@media (min-width: 768px) {
+  .audio-player-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    background-color: #1db954;
+    color: #000;
+  }
+}
+
+.now-playing-info h4 {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now-playing-info p {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+@media (min-width: 768px) {
+  .now-playing-info p { color: #222; }
+}
+
+.audio-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .audio-controls {
+    flex-grow: 1;
+    max-width: 450px;
+  }
+}
+
+.player-buttons-row {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.ctrl-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .ctrl-btn { color: #000; }
+}
+
+.ctrl-btn.active-control {
+  color: #1db954;
+  font-weight: bold;
+}
+
+@media (min-width: 768px) {
+  .ctrl-btn.active-control { color: #ffffff; }
+}
+
+.audio-controls audio {
+  width: 100%;
+  height: 30px;
+}
+
+/* OTROS ELEMENTOS */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  border: none;
+  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prev-btn { left: -5px; }
+.next-btn { right: -5px; }
+
+@media (min-width: 768px) {
+  .prev-btn { left: -20px; }
+  .next-btn { right: -20px; }
+}
+
+.deportes-container {
+  width: 100%;
+  height: 50vh;
+  background-color: #050505;
+  position: relative;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.sports-stage {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.athlete-cutout {
+  position: absolute;
+  cursor: pointer;
+  object-fit: contain;
+  height: 150px;
+}
+@media(min-width: 768px) {
+  .athlete-cutout { height: 220px; }
+}
+
+.sports-tooltip {
+  position: absolute;
+  padding: 4px 10px;
+  background: rgba(18, 18, 18, 0.95);
+  color: #ffffff;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -120%);
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.sports-tooltip.active { opacity: 1; }
+
 .login-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  top: 0; left: 0; width: 100vw; height: 100vh;
   background-color: rgba(10, 10, 10, 0.96);
   z-index: 9999;
   display: flex;
@@ -711,39 +540,25 @@ body {
 
 .login-box {
   background: #181818;
-  padding: 40px;
+  padding: 30px 20px;
   border-radius: 12px;
   text-align: center;
-  max-width: 400px;
+  max-width: 380px;
   width: 90%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   border: 1px solid #282828;
 }
 
 .login-box .brand-title {
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   font-weight: 900;
   color: #e50914;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
-}
-
-.login-box p {
-  font-size: 0.9rem;
-  color: #b3b3b3;
-  margin-bottom: 24px;
-}
-
-.guest-login-option {
-  margin-top: 25px;
-  border-top: 1px solid #333;
-  padding-top: 20px;
+  margin-bottom: 10px;
 }
 
 .email-field {
   width: 100%;
-  padding: 10px 14px;
-  margin-bottom: 12px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
   border-radius: 6px;
   border: 1px solid #444;
   background: #222;
@@ -752,26 +567,30 @@ body {
 
 .btn-email-login {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   background: #1db954;
   border: none;
   border-radius: 6px;
   color: #000;
   font-weight: 700;
-  cursor: pointer;
 }
 
 .logout-btn {
   background: transparent;
   border: 1px solid #e50914;
   color: #e50914;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 600;
 }
 
-.logout-btn:hover {
-  background: #e50914;
-  color: #fff;
+.install-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1db954;
+  color: #000;
+  padding: 8px 12px;
+  font-size: 0.85rem;
 }
