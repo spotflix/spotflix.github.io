@@ -303,3 +303,15 @@ if ('serviceWorker' in navigator) {
     .then(reg => console.log('Service Worker registrado:', reg))
     .catch(err => console.error('Error en Service Worker:', err));
 }
+
+if (tipo === 'serie') {
+      // Codificamos y escapamos los episodios para pasarlos de forma segura al evento
+      const episodiosData = JSON.stringify(item.episodios || []).replace(/"/g, '&quot;');
+      return `
+        <div class="card" onclick="abrirModalEpisodios('${titulo}', '${episodiosData}')">
+          <img src="${poster}" alt="${titulo}" loading="lazy" />
+          <h4>${titulo}</h4>
+          <p>${item.genero || item.year || ''}</p>
+        </div>
+      `;
+    }
