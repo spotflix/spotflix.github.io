@@ -510,6 +510,13 @@ body {
 }
 @media(min-width: 768px) {
   .athlete-cutout { height: 220px; }
+  #user-avatar {
+  width: 12px;         /* Ajusta el ancho deseado (ej. 40px o 45px) */
+  height: 12px;        /* Debe medir lo mismo que el ancho para que sea un círculo perfecto */
+  border-radius: 50%;  /* Vuelve la imagen circular tipo Spotify */
+  object-fit: cover;   /* Evita que la foto se deforme o estire */
+  display: inline-block;
+}
 }
 
 .sports-tooltip {
@@ -596,8 +603,8 @@ body {
 }
 
 #user-avatar {
-  width: 40px;         /* Ajusta el ancho deseado (ej. 40px o 45px) */
-  height: 40px;        /* Debe medir lo mismo que el ancho para que sea un círculo perfecto */
+  width: 24px;         /* Ajusta el ancho deseado (ej. 40px o 45px) */
+  height: 24px;        /* Debe medir lo mismo que el ancho para que sea un círculo perfecto */
   border-radius: 50%;  /* Vuelve la imagen circular tipo Spotify */
   object-fit: cover;   /* Evita que la foto se deforme o estire */
   display: inline-block;
