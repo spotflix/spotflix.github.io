@@ -184,8 +184,19 @@
       <div class="audio-controls">
         <div class="player-buttons-row">
           <button onclick="audioAnterior()" class="ctrl-btn" title="Anterior">⏮</button>
-          <button id="btn-shuffle" onclick="toggleShuffle()" class="ctrl-btn" title="Aleatorio">🔀</button>
-          <button id="btn-repeat" onclick="toggleRepeat()" class="ctrl-btn" title="Repetir">🔁</button>
+          <!-- Botón Shuffle / Aleatorio -->
+            <button id="btn-shuffle" class="player-btn" title="Aleatorio">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.42 1.42 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+              </svg>
+            </button>
+            
+            <!-- Botón Repetir / Loop -->
+            <button id="btn-repeat" class="player-btn" title="Repetir">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+              </svg>
+            </button>
           <button onclick="audioSiguiente()" class="ctrl-btn" title="Siguiente">⏭</button>
         </div>
         <audio id="main-audio-player" controls src=""></audio>
