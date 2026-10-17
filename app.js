@@ -366,3 +366,10 @@ function cerrarModalEpisodios() {
   if (modal) modal.style.display = "none";
   if (iframe) iframe.src = ""; // Detiene la reproducción al cerrar
 }
+
+// Inicializa la Mini App de Telegram
+if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand(); // Abre la app a pantalla completa automáticamente
+}
+
