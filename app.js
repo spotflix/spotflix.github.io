@@ -1,7 +1,7 @@
 'use strict';
 // Spotflix · app.js
 
-const API_URL = "https://script.google.com/macros/s/AKfycbw_jjfqWdYmN_YjHwtlbldJyWtdjMCynvQaPtFaop3vNQAU9EjaoEhcJAchmyCrzgLC/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwE1eiYaVazOFE2kMdWK_1XecIuKQaijX9KxKd4FMhpUe_gj-QY91o9dSb6TmIK9QZr/exec";
 const LS_EMAIL = 'spotflix_user_email';
 const LS_DATA = 'spotflix_data_v2_';
 
