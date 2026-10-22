@@ -1,89 +1,92 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>    
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Spotflix</title>
+    <meta name="description" content="Spotflix: mi biblioteca personal de películas, series, música y libros.">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1db954">
+    <meta name="theme-color" content="#0f0f0f">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="spotflix_logo.png">
-    <link rel="icon" type="image/png" href="spotflix_logo.png">
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Telegram -->
-    <script src="https://telegram.org"></script>
+    <meta name="apple-mobile-web-app-title" content="Spotflix">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
     <!-- Google Identity Services (OAuth) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link rel="stylesheet" href="spotflix.css">   
+    <link rel="stylesheet" href="spotflix.css">
 </head>
 <body>
 
-    <!-- MODAL DE LOGIN -->
+    <!-- LOGIN -->
     <div id="login-screen" class="login-overlay">
       <div class="login-box">
         <h1 class="brand-title">SPOTFLIX</h1>
-        <p>Inicia sesión para cargar tu biblioteca y favoritos personal.</p>
+        <p>Inicia sesión para cargar tu biblioteca y tus favoritos.</p>
         <div id="g_id_onload"
              data-client_id="620173554371-sbp765egj9fet1bfq9ejir93ta3vj4q0.apps.googleusercontent.com"
              data-callback="handleCredentialResponse"
              data-auto_prompt="false">
         </div>
         <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-size="large"></div>
-        
+
         <div class="guest-login-option">
           <p>O ingresa directamente con tu correo:</p>
-          <input type="email" id="email-input" placeholder="tu_correo@gmail.com" class="email-field" />
+          <input type="email" id="email-input" placeholder="tu_correo@gmail.com" class="email-field" autocomplete="email" inputmode="email" />
           <button onclick="loginConEmailManual()" class="btn-email-login">Entrar</button>
         </div>
       </div>
     </div>
 
     <!-- BANNER PWA -->
-    <div id="pwa-install-banner" class="install-banner" style="display:none;">
-      <span>Instala la App en tu inicio</span>
-      <button id="install-pwa-btn" class="btn-install">Instalar</button>
+    <div id="pwa-install-banner" class="install-banner" hidden>
+      <span>Instala Spotflix en tu inicio</span>
+      <div>
+        <button id="install-pwa-btn" class="btn-install">Instalar</button>
+        <button id="install-close-btn" class="btn-cerrar" aria-label="Cerrar">✕</button>
+      </div>
     </div>
 
-    <!-- NAVBAR FIJA SUPERIOR CON HAMBURGUESA -->
+    <!-- NAVBAR -->
     <nav class="navbar">
       <div class="nav-container">
         <div class="brand-logo-container">
-          <img id="user-avatar" class="user-avatar" src="" alt="Foto Perfil" style="display: none;">
+          <img id="user-avatar" class="user-avatar" src="" alt="Foto de perfil" referrerpolicy="no-referrer" hidden>
           <span id="nombreOnTop" class="brand-logo">SPOTFLIX</span>
         </div>
-        
-        <!-- Botón menú hamburguesa móvil -->
-        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú">
-          ☰
+        <button id="menu-toggle" class="menu-toggle" aria-label="Menú" aria-expanded="false" aria-controls="nav-links">
+          <span></span><span></span><span></span>
         </button>
-
-        <ul class="nav-links" id="nav-links">
-          <li><a href="#player-section" onclick="cerrarMenuMovil()">Player</a></li>
-          <li><a href="#peliculas-section" onclick="cerrarMenuMovil()">Films</a></li>
-          <li><a href="#series-section" onclick="cerrarMenuMovil()">Series</a></li>
-          <li><a href="#musica-section" onclick="cerrarMenuMovil()">Música</a></li>
-          <li><a href="#albums-section" onclick="cerrarMenuMovil()">Álbumes</a></li>
-          <li><a href="#libros-section" onclick="cerrarMenuMovil()">Literatura</a></li>
-          <li><a href="#deportes-section" onclick="cerrarMenuMovil()">Personajes</a></li>
+        <ul id="nav-links" class="nav-links">
+          <li><a href="#player-section">Player</a></li>
+          <li><a href="#peliculas-section">Films</a></li>
+          <li><a href="#series-section">Series</a></li>
+          <li><a href="#animes-section">Animación</a></li>
+          <li><a href="#musica-section">Música</a></li>
+          <li><a href="#bandas">Bandas</a></li>
+          <li><a href="#albums-section">Álbumes</a></li>
+          <li><a href="#libros-section">Literatura</a></li>
+          <li><a href="#deportes-section">Personajes</a></li>
           <li><button onclick="logout()" class="logout-btn">Salir</button></li>
         </ul>
       </div>
     </nav>
-      
+
     <header class="user-header">
       <h2 id="user-name">Perfil de Usuario</h2>
     </header>
-  
+
+    <div id="estado-carga" class="estado-carga" role="status" aria-live="polite" hidden></div>
+
     <section id="player-section" class="player-section">
       <div class="video-wrapper">
-        <video id="main-video-player" controls poster="https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=1200">
-          <source id="video-source" src="" type="video/mp4">
+        <video id="main-video-player" controls playsinline preload="metadata">
           Tu navegador no soporta el reproductor de video.
         </video>
+        <iframe id="embed-frame" title="Reproductor" hidden allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
       </div>
-      
+
       <div class="video-details">
         <h2 id="playing-title">Selecciona un título para reproducir</h2>
         <p id="playing-info" class="playing-info">Explora las listas a continuación para ver tráileres y episodios.</p>
@@ -91,7 +94,7 @@
     </section>
 
     <main class="main-content">
-      
+
       <!-- PELÍCULAS -->
       <section id="peliculas-section" class="section-container">
         <h3 class="section-title">Películas Favoritas</h3>
@@ -112,8 +115,8 @@
         </div>
       </section>
 
-      <!-- ANIMES -->
-      <section class="section-container">
+      <!-- ANIMACIONES -->
+      <section id="animes-section" class="section-container">
         <h3 class="section-title">Animaciones Favoritas</h3>
         <div class="carousel-container">
           <button class="nav-btn prev-btn" onclick="moverCarrusel('fav-animes', -1)" aria-label="Anterior">&#10094;</button>
@@ -126,35 +129,37 @@
       <div id="musica-section" class="songs-banner">
         <h1>Mis Canciones</h1>
       </div>
-      
+
       <section class="section-container">
-        <div class="table-scroll-container">
+        <input type="search" id="song-search" class="song-search" placeholder="Buscar canción, artista o álbum..." aria-label="Buscar canción">
+        <div id="songs-scroll" class="table-scroll-container">
           <table class="songs-table">
             <thead>
               <tr>
-                <th style="width: 50px;">Play</th>
+                <th class="col-play">Play</th>
                 <th>Nombre</th>
-                <th>Artista</th>
-                <th>Álbum</th>
+                <th class="col-artista">Artista</th>
+                <th class="col-album">Álbum</th>
               </tr>
             </thead>
             <tbody id="songs-list"></tbody>
           </table>
         </div>
-      </section>  
+      </section>
 
-      <section id="bandas" class="bandas-section" style="display:none;">
+      <!-- BANDAS -->
+      <section id="bandas" class="bandas-section" hidden>
         <div id="panels-container" class="panels"></div>
       </section>
 
       <!-- ÁLBUMES -->
       <section id="albums-section" class="albums-container">
         <div class="section-header">
-          <h2 class="section-title" style="padding-left: 15px;">Álbumes Destacados</h2>
+          <h2 class="section-title">Álbumes Destacados</h2>
         </div>
         <div id="albums-grid" class="albums-grid"></div>
       </section>
-     
+
       <!-- LITERATURA -->
       <section id="libros-section" class="section-container">
         <h3 class="section-title">Libros Favs</h3>
@@ -166,8 +171,8 @@
       </section>
 
       <!-- PERSONAJES -->
-      <section id="deportes-section" class="deportes-container" style="display:block;">
-        <h3 class="section-title" style="padding:15px;">Personajes Destacados</h3>
+      <section id="deportes-section" class="deportes-container">
+        <h3 class="section-title section-title-over">Personajes Destacados</h3>
         <div id="sports-stage" class="sports-stage">
           <div id="deportes-tooltip" class="sports-tooltip"></div>
         </div>
@@ -175,47 +180,33 @@
 
     </main>
 
-    <!-- REPRODUCTOR DE AUDIO FIJO CON CONTROLES AVANZADOS -->
-    <div class="audio-player-bar">
-      <div class="now-playing-info">
-        <span class="now-playing-label">Now Playing</span>
-        <h4 id="audio-track-title">Sin reproducción</h4>
-        <p id="audio-track-artist">-</p>
-      </div>
-
-      <div class="audio-controls">
-        <div class="player-buttons-row">
-          <button onclick="audioAnterior()" class="ctrl-btn" title="Anterior">⏮</button>
-          <!-- Botón Shuffle / Aleatorio -->
-            <button id="btn-shuffle" class="player-btn" title="Aleatorio">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.42 1.42 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
-              </svg>
-            </button>
-            
-            <!-- Botón Repetir / Loop -->
-            <button id="btn-repeat" class="player-btn" title="Repetir">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
-              </svg>
-            </button>
-          <button onclick="audioSiguiente()" class="ctrl-btn" title="Siguiente">⏭</button>
+    <!-- REPRODUCTOR DE AUDIO FIJO -->
+    <div class="audio-player-bar" id="audio-bar">
+      <div class="player-row">
+        <img id="audio-cover" class="audio-cover" alt="" hidden>
+        <div class="now-playing-info">
+          <span class="now-playing-label">Now Playing</span>
+          <h4 id="audio-track-title">Sin reproducción</h4>
+          <p id="audio-track-artist">-</p>
         </div>
-        <audio id="main-audio-player" controls src=""></audio>
-      </div>
-    </div>
-
-    <!-- Modal para reproducir episodios de series -->
-    <div id="episode-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal" onclick="cerrarModalEpisodios()">&times;</span>
-        <h3 id="modal-serie-title">Selecciona un Episodio</h3>
-        <div id="episodes-list" class="episodes-grid"></div>
-        <div class="video-container">
-          <iframe id="modal-iframe" src="" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
+        <div class="ctrl-row">
+          <button id="btn-prev" class="ctrl" aria-label="Anterior">⏮</button>
+          <button id="btn-play" class="ctrl ctrl-play" aria-label="Reproducir o pausar">▶</button>
+          <button id="btn-next" class="ctrl" aria-label="Siguiente">⏭</button>
         </div>
       </div>
+      <div class="seek-row">
+        <button id="btn-shuffle" class="ctrl ctrl-chico" aria-label="Aleatorio" title="Aleatorio">🔀</button>
+        <span id="t-cur" class="tiempo">0:00</span>
+        <input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="Posición">
+        <span id="t-dur" class="tiempo">0:00</span>
+        <button id="btn-repeat" class="ctrl ctrl-chico" aria-label="Repetir" title="Repetir">🔁</button>
+      </div>
+      <audio id="main-audio-player" preload="none"></audio>
     </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
     <script src="app.js"></script>
 </body>
 </html>
